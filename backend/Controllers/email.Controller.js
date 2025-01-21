@@ -1,7 +1,7 @@
 import Email from '../Models/email.model.js'; // Path to email model
 
 // Controller function to store email
-export async function storeEmail(req, res) {
+export  async function storeEmail(req, res) {
     const { email } = req.body;
 
     // Updated robust email validation regex

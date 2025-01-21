@@ -19,10 +19,9 @@ const allowedOrigins = [
     'http://localhost:5173'
 ];
 
-// Unified CORS configuration
 const corsOptions = {
     origin: (origin, callback) => {
-        if (allowedOrigins.includes(origin) || !oßßrigin) {
+        if (allowedOrigins.includes(origin) || !origin) {
             callback(null, true); // Allow request
         } else {
             callback(new Error('Not allowed by CORS'));
@@ -32,6 +31,7 @@ const corsOptions = {
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // HTTP methods allowed
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'], // Headers allowed
 };
+
 
 
 
