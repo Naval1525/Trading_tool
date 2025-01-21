@@ -4,6 +4,7 @@ import connectDB from "./utils/db.js";
 import cors from "cors";
 import cookieParser from 'cookie-parser';
 import compression from "compression";
+import emailRoute from './Routes/email.route.js'
 
 
 // Load environment variables
@@ -35,7 +36,6 @@ const corsOptions = {
 
 
 app.use(compression());
-
 // Middleware
 app.use(cors(corsOptions));
 app.use(express.json());
@@ -48,7 +48,7 @@ app.get('/health', (req, res) => {
 });
 
 // API routes
-
+app.use('/api',emailRoute)
 
 
 
