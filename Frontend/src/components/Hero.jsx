@@ -145,7 +145,7 @@
 // export default Hero;/
 
 import React, { useState, useEffect } from "react";
-import { AlertTriangle, ChevronRight, TrendingUp } from "lucide-react";
+import { AlertTriangle, ChevronRight, TrendingUp, BookOpen, Award  } from "lucide-react";
 import Particles from "../components/ui/particles";
 const TradingDisclaimer = ({ onAccept }) => {
   const [isRead, setIsRead] = useState(false);
@@ -302,39 +302,74 @@ const BitcoinTradingGraph = () => {
   );
 };
 
+
 const Hero = () => {
   const [showDisclaimer, setShowDisclaimer] = useState(true);
+
   return (
     <>
       {showDisclaimer && (
         <TradingDisclaimer onAccept={() => setShowDisclaimer(false)} />
       )}
-      <div className="relative min-h-screen w-full bg-black overflow-hidden flex flex-col items-center justify-center py-16 px-6">
+      <div className="relative min-h-screen w-full bg-black overflow-hidden flex flex-col items-center justify-center py-40 px-6">
         <Particles
           className="absolute inset-0"
           quantity={50}
           color="#ffffff"
           refresh={false}
         />
-        
-        <div className="w-full max-w-xl text-center space-y-8  mt-48 relative z-10">
-          <h1 className="text-6xl font-bold text-white">Virtual Ventures</h1>
-          <p className="text-2xl  text-gray-300">
-            Master Stocks, Crypto and Real-estate Trading at one Space.
-          </p>
 
-          <div className="flex justify-center space-x-6 ">
+        <div className="w-full max-w-4xl text-center space-y-8 relative z-10">
+          <div className="space-y-4">
+            <h1 className="text-6xl font-bold text-white">
+              Learn Trading Risk-Free
+            </h1>
+            <p className="text-2xl text-gray-300">
+              Master the art of trading with virtual portfolios across Stocks and Real Estate
+            </p>
+            <div className="flex justify-center gap-4 text-gray-300 mt-6">
+              <div className="flex items-center">
+                <BookOpen className="w-5 h-5 mr-2" />
+                <span>Educational Platform</span>
+              </div>
+              <div className="flex items-center">
+                <Award className="w-5 h-5 mr-2" />
+                <span>Risk-Free Practice</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex justify-center space-x-6">
             <button className="flex items-center space-x-3 px-8 py-4 text-lg rounded-xl font-bold bg-white text-black hover:bg-gray-200 transition-all">
-              Start Trading <ChevronRight className="ml-2 w-6 h-6" />
+              Start Learning <ChevronRight className="ml-2 w-6 h-6" />
             </button>
             <button className="flex items-center space-x-3 px-8 py-4 text-lg rounded-xl font-bold border-2 border-white text-white hover:bg-white/10 transition-all duration-300">
-              <TrendingUp className="mr-2 w-6 h-6" /> Dashboard
+              <TrendingUp className="mr-2 w-6 h-6" /> Practice Dashboard
             </button>
           </div>
         </div>
-        <div className=" mt-48 w-full">
-          <div className="w-full">
-            <BitcoinTradingGraph />
+
+        <div className="mt-16 w-full max-w-6xl relative">
+          {/* Aura effect layers */}
+          <div className="absolute -inset-1 bg-white/20 rounded-3xl blur-2xl" />
+          <div className="absolute -inset-2 bg-white/10 rounded-3xl blur-3xl" />
+          <div className="absolute -inset-3 bg-white/5 rounded-3xl blur-3xl" />
+
+          <div className="relative bg-gray-900 rounded-2xl p-8 shadow-2xl border border-white/10">
+            <div className="flex justify-between items-center mb-6">
+              <div>
+                <h2 className="text-2xl font-bold text-white">Paytm Practice Chart</h2>
+                <p className="text-gray-400">Learn price action with real-time data</p>
+              </div>
+              <div className="flex gap-4">
+                <button className="px-4 py-2 rounded-lg bg-gray-800 text-white hover:bg-gray-700">1H</button>
+                <button className="px-4 py-2 rounded-lg bg-gray-800 text-white hover:bg-gray-700">1D</button>
+                <button className="px-4 py-2 rounded-lg bg-gray-800 text-white hover:bg-gray-700">1W</button>
+              </div>
+            </div>
+            <div className="h-96">
+              <BitcoinTradingGraph />
+            </div>
           </div>
         </div>
       </div>
