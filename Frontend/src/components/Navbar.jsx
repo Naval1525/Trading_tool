@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { User } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { assets } from "./../assets/assets";
 
@@ -30,7 +30,7 @@ const Navbar = () => {
             </div>
             <div
               className={`
-              text-white text-3xl font-normal whitespace-nowrap
+              text-white text-2xl font-normal whitespace-nowrap
               transition-all duration-500 ease-linear overflow-hidden
               ${
                 isLogoHovered
@@ -44,23 +44,45 @@ const Navbar = () => {
           </div>
         </Link>
 
-        <div className="flex items-center space-x-6 text-white">
+        <div className="flex items-center space-x-11 text-white">
           <Link
             to="/market"
-            className="text-2xl font-normal tracking-wide hover:text-gray-300 transition-colors"
+            className="text-xl font-normal tracking-wide hover:text-gray-300 transition-colors"
           >
             Market
           </Link>
           <Link
             to="/news"
-            className="text-2xl font-normal tracking-wide hover:text-gray-300 transition-colors"
+            className="text-xl font-normal tracking-wide hover:text-gray-300 transition-colors"
           >
             News
           </Link>
-          <Link to="/profile"
-            className="text-2xl font-normal tracking-wide hover:text-gray-300 transition-colors">Portfolio</Link>
-          <Link to="/signup" className="hover:text-gray-300 transition-colors">
-            <User size={28} />
+          <Link
+            to="/profile"
+            className="text-xl font-normal tracking-wide hover:text-gray-300 transition-colors"
+          >
+            Portfolio
+          </Link>
+          <Link
+            to="/signup"
+            className="
+              flex items-center gap-2 
+              bg-gradient-to-r from-blue-600 to-purple-600 
+              text-white 
+              py-2 px-4 
+              rounded-full 
+              shadow-md 
+              hover:scale-105 
+              transition-all 
+              duration-300 
+              group
+            "
+          >
+            <span className="text-sm font-medium">Sign Up</span>
+            <ArrowRight
+              size={20}
+              className="group-hover:translate-x-1 transition-transform"
+            />
           </Link>
         </div>
       </div>
