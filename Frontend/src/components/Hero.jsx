@@ -1,393 +1,152 @@
-// // import React, { useState } from "react";
-// // import {
-// //   ChevronRight,
-// //   TrendingUp,
-// //   BookOpen,
-// //   BarChart2,
-// //   Newspaper,
-// //   Globe,
-// //   TrendingDown,
-// //   Award,
-// // } from "lucide-react";
+// import React, { useState, useEffect } from "react";
+// import { ChevronRight, TrendingUp, AlertTriangle } from "lucide-react";
+// import Particles from "../components/ui/particles";
 
-// // const Hero = () => {
-// //   const [activeTab, setActiveTab] = useState("courses");
+// const BitcoinTradingGraph = () => {
+//   const [candles, setCandles] = useState([]);
 
-// //   const dashboardSections = {
-// //     courses: [
-// //       { title: "Technical Analysis", progress: 65 },
-// //       { title: "Risk Management", progress: 45 },
-// //       { title: "Market Psychology", progress: 30 },
-// //     ],
-// //     trends: [
-// //       { name: "Crypto Volatility", change: "+12.3%" },
-// //       { name: "Tech Stocks", change: "-3.5%" },
-// //       { name: "Forex Patterns", change: "+7.2%" },
-// //     ],
-// //     news: [
-// //       { headline: "Fed Rate Decision Impact", source: "Financial Times" },
-// //       { headline: "Emerging Market Opportunities", source: "Bloomberg" },
-// //       { headline: "AI Trading Innovations", source: "Wall Street Journal" },
-// //     ],
-// //   };
+//   useEffect(() => {
+//     const generateCandles = () => {
+//       let lastPrice = 50000;
+//       const newCandles = Array.from({ length: 10 }, (_, index) => {
+//         const open = lastPrice;
+//         const volatility = Math.random() * 2000;
+//         const close = open + (Math.random() > 0.5 ? volatility : -volatility);
+//         const high = Math.max(open, close) + Math.random() * 1000;
+//         const low = Math.min(open, close) - Math.random() * 1000;
+//         const color = close > open ? "green" : "red";
+//         lastPrice = close;
 
-// //   return (
-// //     <div className="bg-black text-white min-h-screen flex items-center justify-center px-6 relative overflow-hidden">
-// //       <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center relative z-10">
-// //         {/* Left Content */}
-// //         <div className="space-y-8">
-// //           <h1 className="text-7xl font-bold mb-6" style={{ color: "#BC6FF1" }}>
-// //             Virtal Ventures
-// //           </h1>
-// //           <p className="text-2xl mb-8 text-gray-300 max-w-2xl">
-// //             Transform Your Trading Journey with Intelligent Learning, Real-Time
-// //             Insights, and Advanced Strategies
-// //           </p>
+//         return { open, close, high, low, color };
+//       });
+//       setCandles(newCandles);
+//     };
 
-// //           <div className="flex space-x-6">
-// //             <button
-// //               className="flex items-center space-x-3 px-8 py-4 text-lg rounded-xl font-bold transition-all duration-300"
-// //               style={{
-// //                 backgroundColor: "#52057B",
-// //                 color: "white",
-// //                 boxShadow: "0 0 20px rgba(141, 41, 220, 0.4)",
-// //               }}
-// //             >
-// //               Start Learning <ChevronRight className="ml-2 w-6 h-6" />
-// //             </button>
-// //             <button className="flex items-center space-x-3 px-8 py-4 text-lg rounded-xl font-bold border-2 border-[#892CDC] text-[#892CDC] hover:bg-[#892CDC]/20 transition-all duration-300">
-// //               <TrendingUp className="mr-2 w-6 h-6" /> Market Dashboard
-// //             </button>
-// //           </div>
+//     generateCandles();
+//     const interval = setInterval(generateCandles, 5000);
+//     return () => clearInterval(interval);
+//   }, []);
 
-// //           <div className="flex space-x-8 mt-12 text-gray-300">
-// //             <div className="flex items-center space-x-3">
-// //               <BookOpen className="w-8 h-8" style={{ color: "#892CDC" }} />
-// //               <span className="text-xl">100+ Courses</span>
-// //             </div>
-// //             <div className="flex items-center space-x-3">
-// //               <BarChart2 className="w-8 h-8" style={{ color: "#BC6FF1" }} />
-// //               <span className="text-xl">Advanced Analytics</span>
-// //             </div>
-// //           </div>
-// //         </div>
-
-// //         {/* Right Content - Interactive Dashboard */}
-// //         <div className="relative">
-// //           <div
-// //             className="absolute -top-1/4 -right-1/4 w-[600px] h-[600px] rounded-full opacity-30 blur-3xl"
-// //             style={{ backgroundColor: "#52057B" }}
-// //           ></div>
-// //           <div className="relative z-10 bg-[#892CDC]/10 p-8 rounded-3xl border border-[#892CDC]/30 backdrop-blur-xl">
-// //             <div className="flex justify-between mb-6">
-// //               {["Courses", "Trends", "News"].map((tab) => (
-// //                 <button
-// //                   key={tab.toLowerCase()}
-// //                   onClick={() => setActiveTab(tab.toLowerCase())}
-// //                   className={`px-4 py-2 rounded-lg transition-all ${
-// //                     activeTab === tab.toLowerCase()
-// //                       ? "bg-[#52057B] text-white"
-// //                       : "text-[#BC6FF1] hover:bg-[#892CDC]/20"
-// //                   }`}
-// //                 >
-// //                   {tab}
-// //                 </button>
-// //               ))}
-// //             </div>
-
-// //             {activeTab === "courses" && (
-// //               <div>
-// //                 <h3
-// //                   className="text-2xl font-bold mb-4"
-// //                   style={{ color: "#BC6FF1" }}
-// //                 >
-// //                   Learning Progress
-// //                 </h3>
-// //                 {dashboardSections.courses.map((course, index) => (
-// //                   <div key={index} className="mb-4">
-// //                     <div className="flex justify-between text-sm mb-1">
-// //                       <span>{course.title}</span>
-// //                       <span>{course.progress}%</span>
-// //                     </div>
-// //                     <div className="bg-[#52057B]/30 rounded-full h-2">
-// //                       <div
-// //                         className="bg-[#892CDC] rounded-full h-2"
-// //                         style={{ width: `${course.progress}%` }}
-// //                       ></div>
-// //                     </div>
-// //                   </div>
-// //                 ))}
-// //               </div>
-// //             )}
-
-// //             {activeTab === "trends" && (
-// //               <div>
-// //                 <h3
-// //                   className="text-2xl font-bold mb-4"
-// //                   style={{ color: "#BC6FF1" }}
-// //                 >
-// //                   Market Trends
-// //                 </h3>
-// //                 {dashboardSections.trends.map((trend, index) => (
-// //                   <div
-// //                     key={index}
-// //                     className="flex justify-between items-center bg-[#52057B]/20 p-3 rounded-xl mb-3"
-// //                   >
-// //                     <span>{trend.name}</span>
-// //                     <span
-// //                       className={`font-bold ${
-// //                         trend.change.startsWith("+")
-// //                           ? "text-green-400"
-// //                           : "text-red-400"
-// //                       }`}
-// //                     >
-// //                       {trend.change}
-// //                     </span>
-// //                   </div>
-// //                 ))}
-// //               </div>
-// //             )}
-
-// //             {activeTab === "news" && (
-// //               <div>
-// //                 <h3
-// //                   className="text-2xl font-bold mb-4"
-// //                   style={{ color: "#BC6FF1" }}
-// //                 >
-// //                   Latest News
-// //                 </h3>
-// //                 {dashboardSections.news.map((item, index) => (
-// //                   <div
-// //                     key={index}
-// //                     className="bg-[#52057B]/20 p-3 rounded-xl mb-3 hover:bg-[#892CDC]/20 transition-all"
-// //                   >
-// //                     <h4 className="text-white font-semibold">
-// //                       {item.headline}
-// //                     </h4>
-// //                     <p className="text-sm text-gray-400">{item.source}</p>
-// //                   </div>
-// //                 ))}
-// //               </div>
-// //             )}
-// //           </div>
-// //         </div>
-// //       </div>
-
-// //       {/* Background Gradient */}
-// //       <div
-// //         className="absolute inset-0 z-0"
-// //         style={{
-// //           background:
-// //             "black",
-// //         }}
-// //       ></div>
-// //     </div>
-// //   );
-// // };
-
-// // export default Hero;
-// import React, { useState } from "react";
-// import {
-//   ChevronRight,
-//   TrendingUp,
-//   BookOpen,
-//   BarChart2,
-//   Newspaper,
-//   Globe,
-//   TrendingDown,
-//   Award,
-// } from "lucide-react";
-// import TradingDisclaimer from "./TradingDisclaimer";
-
-// const Hero = () => {
-//   const [showDisclaimer, setShowDisclaimer] = useState(true);
-//   const [activeTab, setActiveTab] = useState("courses");
-
-//   const dashboardSections = {
-//     courses: [
-//       { title: "Technical Analysis", progress: 65 },
-//       { title: "Risk Management", progress: 45 },
-//       { title: "Market Psychology", progress: 30 },
-//     ],
-//     trends: [
-//       { name: "Crypto Volatility", change: "+12.3%" },
-//       { name: "Tech Stocks", change: "-3.5%" },
-//       { name: "Forex Patterns", change: "+7.2%" },
-//     ],
-//     news: [
-//       { headline: "Fed Rate Decision Impact", source: "Financial Times" },
-//       { headline: "Emerging Market Opportunities", source: "Bloomberg" },
-//       { headline: "AI Trading Innovations", source: "Wall Street Journal" },
-//     ],
-//   };
+//   const maxPrice = Math.max(...candles.map((c) => c.high));
+//   const minPrice = Math.min(...candles.map((c) => c.low));
 
 //   return (
-//     <>
-//       {showDisclaimer && <TradingDisclaimer onAccept={() => setShowDisclaimer(false)} />}
-//       <div className="bg-black text-white min-h-screen flex items-center justify-center px-6 relative overflow-hidden">
-//         {/* Rest of your existing code remains unchanged */}
-//         <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center relative z-10">
-//           {/* Left Content */}
-//           <div className="space-y-8">
-//             <h1 className="text-7xl font-bold mb-6" style={{ color: "#BC6FF1" }}>
-//               Virtal Ventures
-//             </h1>
-//             <p className="text-2xl mb-8 text-gray-300 max-w-2xl">
-//               Transform Your Trading Journey with Intelligent Learning, Real-Time
-//               Insights, and Advanced Strategies
-//             </p>
+//     <div className="w-full h-64 overflow-hidden relative bg-black shadow-2xl">
+//       <svg viewBox="0 0 500 250" className="w-full h-full">
+//         <defs>
+//           <linearGradient id="candleGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+//             <stop offset="0%" stopColor="rgba(255,255,255,0.05)" />
+//             <stop offset="100%" stopColor="rgba(255,255,255,0.02)" />
+//           </linearGradient>
+//         </defs>
+//         <rect
+//           x="0"
+//           y="0"
+//           width="500"
+//           height="250"
+//           fill="url(#candleGradient)"
+//         />
+//         {candles.map((candle, index) => {
+//           const x = index * 50 + 25;
+//           const width = 20;
+//           const scaleY = 250 / (maxPrice - minPrice);
+//           const bodyHeight = Math.abs(candle.close - candle.open) * scaleY;
+//           const bodyY = 250 - (candle.close - minPrice) * scaleY;
+//           const wickHeight = (candle.high - candle.low) * scaleY;
+//           const wickY = 250 - (candle.high - minPrice) * scaleY;
 
-//             <div className="flex space-x-6">
-//               <button
-//                 className="flex items-center space-x-3 px-8 py-4 text-lg rounded-xl font-bold transition-all duration-300"
-//                 style={{
-//                   backgroundColor: "#52057B",
-//                   color: "white",
-//                   boxShadow: "0 0 20px rgba(141, 41, 220, 0.4)",
-//                 }}
-//               >
-//                 Start Learning <ChevronRight className="ml-2 w-6 h-6" />
-//               </button>
-//               <button className="flex items-center space-x-3 px-8 py-4 text-lg rounded-xl font-bold border-2 border-[#892CDC] text-[#892CDC] hover:bg-[#892CDC]/20 transition-all duration-300">
-//                 <TrendingUp className="mr-2 w-6 h-6" /> Market Dashboard
-//               </button>
-//             </div>
-
-//             <div className="flex space-x-8 mt-12 text-gray-300">
-//               <div className="flex items-center space-x-3">
-//                 <BookOpen className="w-8 h-8" style={{ color: "#892CDC" }} />
-//                 <span className="text-xl">100+ Courses</span>
-//               </div>
-//               <div className="flex items-center space-x-3">
-//                 <BarChart2 className="w-8 h-8" style={{ color: "#BC6FF1" }} />
-//                 <span className="text-xl">Advanced Analytics</span>
-//               </div>
-//             </div>
-//           </div>
-
-//           {/* Right Content - Interactive Dashboard */}
-//           <div className="relative">
-//             <div
-//               className="absolute -top-1/4 -right-1/4 w-[600px] h-[600px] rounded-full opacity-30 blur-3xl"
-//               style={{ backgroundColor: "#52057B" }}
-//             ></div>
-//             <div className="relative z-10 bg-[#892CDC]/10 p-8 rounded-3xl border border-[#892CDC]/30 backdrop-blur-xl">
-//               <div className="flex justify-between mb-6">
-//                 {["Courses", "Trends", "News"].map((tab) => (
-//                   <button
-//                     key={tab.toLowerCase()}
-//                     onClick={() => setActiveTab(tab.toLowerCase())}
-//                     className={`px-4 py-2 rounded-lg transition-all ${
-//                       activeTab === tab.toLowerCase()
-//                         ? "bg-[#52057B] text-white"
-//                         : "text-[#BC6FF1] hover:bg-[#892CDC]/20"
-//                     }`}
-//                   >
-//                     {tab}
-//                   </button>
-//                 ))}
-//               </div>
-
-//               {activeTab === "courses" && (
-//                 <div>
-//                   <h3
-//                     className="text-2xl font-bold mb-4"
-//                     style={{ color: "#BC6FF1" }}
-//                   >
-//                     Learning Progress
-//                   </h3>
-//                   {dashboardSections.courses.map((course, index) => (
-//                     <div key={index} className="mb-4">
-//                       <div className="flex justify-between text-sm mb-1">
-//                         <span>{course.title}</span>
-//                         <span>{course.progress}%</span>
-//                       </div>
-//                       <div className="bg-[#52057B]/30 rounded-full h-2">
-//                         <div
-//                           className="bg-[#892CDC] rounded-full h-2"
-//                           style={{ width: `${course.progress}%` }}
-//                         ></div>
-//                       </div>
-//                     </div>
-//                   ))}
-//                 </div>
-//               )}
-
-//               {activeTab === "trends" && (
-//                 <div>
-//                   <h3
-//                     className="text-2xl font-bold mb-4"
-//                     style={{ color: "#BC6FF1" }}
-//                   >
-//                     Market Trends
-//                   </h3>
-//                   {dashboardSections.trends.map((trend, index) => (
-//                     <div
-//                       key={index}
-//                       className="flex justify-between items-center bg-[#52057B]/20 p-3 rounded-xl mb-3"
-//                     >
-//                       <span>{trend.name}</span>
-//                       <span
-//                         className={`font-bold ${
-//                           trend.change.startsWith("+")
-//                             ? "text-green-400"
-//                             : "text-red-400"
-//                         }`}
-//                       >
-//                         {trend.change}
-//                       </span>
-//                     </div>
-//                   ))}
-//                 </div>
-//               )}
-
-//               {activeTab === "news" && (
-//                 <div>
-//                   <h3
-//                     className="text-2xl font-bold mb-4"
-//                     style={{ color: "#BC6FF1" }}
-//                   >
-//                     Latest News
-//                   </h3>
-//                   {dashboardSections.news.map((item, index) => (
-//                     <div
-//                       key={index}
-//                       className="bg-[#52057B]/20 p-3 rounded-xl mb-3 hover:bg-[#892CDC]/20 transition-all"
-//                     >
-//                       <h4 className="text-white font-semibold">
-//                         {item.headline}
-//                       </h4>
-//                       <p className="text-sm text-gray-400">{item.source}</p>
-//                     </div>
-//                   ))}
-//                 </div>
-//               )}
-//             </div>
-//           </div>
-//         </div>
-
-//         {/* Background Gradient */}
-//         <div
-//           className="absolute inset-0 z-0"
-//           style={{
-//             background: "black",
-//           }}
-//         ></div>
+//           return (
+//             <g key={index} className="transition-all duration-500 ease-in-out">
+//               <line
+//                 x1={x}
+//                 y1={wickY}
+//                 x2={x}
+//                 y2={wickY + wickHeight}
+//                 stroke={candle.color === "green" ? "green" : "red"}
+//                 strokeWidth="2"
+//               />
+//               <rect
+//                 x={x - width / 2}
+//                 y={bodyY}
+//                 width={width}
+//                 height={bodyHeight}
+//                 fill={candle.color === "green" ? "green" : "red"}
+//                 className="transition-all duration-500 ease-in-out"
+//               />
+//             </g>
+//           );
+//         })}
+//       </svg>
+//       <div className="absolute top-2 right-2 bg-gray-800/50 text-white px-2 py-1 rounded">
+//         Bitcoin Price: $
+//         {candles[candles.length - 1]?.close.toLocaleString() || "Loading"}
 //       </div>
-//     </>
+//     </div>
 //   );
 // };
 
-// export default Hero;
-import React, { useState } from 'react';
-import {
-  ChevronRight,
-  TrendingUp,
-  BookOpen,
-  BarChart2,
-  AlertTriangle
-} from 'lucide-react';
+// const Hero = () => {
+//   const [showDisclaimer, setShowDisclaimer] = useState(true);
 
+//   return (
+//     <div className="relative min-h-screen w-full bg-black overflow-hidden">
+//       <Particles
+//         className="absolute inset-0"
+//         quantity={50}
+//         color="#ffffff"
+//         refresh={false}
+//       />
+//       <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center relative z-10 px-6 min-h-screen">
+//         <div className="space-y-8">
+//           <h1 className="text-6xl md:text-7xl font-bold text-white">
+//             Virtual Ventures
+//           </h1>
+//           <p className="text-2xl mb-8 text-gray-300 max-w-2xl">
+//             Master Stocks, Crypto and Real-estate Trading at one Space.
+//           </p>
+
+//           <div className="flex space-x-6">
+//             <button className="flex items-center space-x-3 px-8 py-4 text-lg rounded-xl font-bold bg-white text-black hover:bg-gray-200 transition-all">
+//               Start Trading <ChevronRight className="ml-2 w-6 h-6" />
+//             </button>
+//             <button className="flex items-center space-x-3 px-8 py-4 text-lg rounded-xl font-bold border-2 border-white text-white hover:bg-white/10 transition-all duration-300">
+//               <TrendingUp className="mr-2 w-6 h-6" /> Dashboard
+//             </button>
+//           </div>
+//         </div>
+
+//         <div className="flex flex-col items-center justify-center space-y-6">
+//           <div className="w-full max-w-md bg-black p-6 rounded-xl border border-gray-800 shadow-2xl hover:scale-105 transition-transform">
+//             <h3 className="text-2xl font-bold text-white mb-4">Trading Card</h3>
+//             <div className="text-gray-200 space-y-2">
+//               <p>
+//                 Bitcoin Current Price:{" "}
+//                 <span className="text-white">$52,500</span>
+//               </p>
+//               <p>
+//                 24h Change: <span className="text-white">+3.2%</span>
+//               </p>
+//               <p>
+//                 Market Cap: <span className="text-white">$1.02T</span>
+//               </p>
+//               <div className="mt-4 w-full h-2 bg-gray-700 rounded-full">
+//                 <div className="w-2/3 h-full bg-white rounded-full animate-pulse"></div>
+//               </div>
+//             </div>
+//           </div>
+
+//           <BitcoinTradingGraph />
+//         </div>
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default Hero;/
+
+import React, { useState, useEffect } from "react";
+import { AlertTriangle, ChevronRight, TrendingUp } from "lucide-react";
+import Particles from "../components/ui/particles";
 const TradingDisclaimer = ({ onAccept }) => {
   const [isRead, setIsRead] = useState(false);
 
@@ -396,7 +155,9 @@ const TradingDisclaimer = ({ onAccept }) => {
       <div className="max-w-4xl bg-black bg-opacity-90 rounded-lg border border-gray-800 p-8 space-y-6">
         <div className="flex items-center gap-2 text-red-400">
           <AlertTriangle className="w-6 h-6" />
-          <h2 className="text-2xl font-bold text-white">Important Risk Disclosure</h2>
+          <h2 className="text-2xl font-bold text-white">
+            Important Risk Disclosure
+          </h2>
         </div>
 
         <div className="space-y-4 text-gray-100">
@@ -404,21 +165,35 @@ const TradingDisclaimer = ({ onAccept }) => {
             This platform is for EDUCATIONAL PURPOSES ONLY
           </div>
 
-          <p>The virtual trading platform provided here is designed solely for educational and practice purposes using virtual/dummy coins.</p>
+          <p>
+            The virtual trading platform provided here is designed solely for
+            educational and practice purposes using virtual/dummy coins.
+          </p>
 
           <div className="space-y-2">
             <p className="font-semibold">Please understand that:</p>
             <ul className="list-disc pl-6 space-y-2">
-              <li>Success in virtual trading does not guarantee success in real trading</li>
-              <li>Virtual trading cannot fully simulate real market emotions and pressures</li>
+              <li>
+                Success in virtual trading does not guarantee success in real
+                trading
+              </li>
+              <li>
+                Virtual trading cannot fully simulate real market emotions and
+                pressures
+              </li>
               <li>Past performance is not indicative of future results</li>
-              <li>Real cryptocurrency trading involves substantial risk of loss</li>
+              <li>
+                Real cryptocurrency trading involves substantial risk of loss
+              </li>
             </ul>
           </div>
 
           <div className="bg-gray-900 bg-opacity-50 p-4 rounded-lg">
             <p className="font-semibold">Regulatory Notice:</p>
-            <p>This platform is not regulated by SEBI or any other Indian regulatory authority.</p>
+            <p>
+              This platform is not regulated by SEBI or any other Indian
+              regulatory authority.
+            </p>
           </div>
         </div>
 
@@ -430,7 +205,9 @@ const TradingDisclaimer = ({ onAccept }) => {
               onChange={() => setIsRead(!isRead)}
               className="w-4 h-4"
             />
-            <span className='text-white'>I have read and understand the disclaimer</span>
+            <span className="text-white">
+              I have read and understand the disclaimer
+            </span>
           </label>
 
           <button
@@ -446,144 +223,118 @@ const TradingDisclaimer = ({ onAccept }) => {
   );
 };
 
-const Hero = () => {
-  const [showDisclaimer, setShowDisclaimer] = useState(true);
-  const [activeTab, setActiveTab] = useState("courses");
+const BitcoinTradingGraph = () => {
+  const [candles, setCandles] = useState([]);
 
-  const dashboardSections = {
-    courses: [
-      { title: "Technical Analysis", progress: 65 },
-      { title: "Risk Management", progress: 45 },
-      { title: "Market Psychology", progress: 30 },
-    ],
-    trends: [
-      { name: "Crypto Volatility", change: "+12.3%" },
-      { name: "Tech Stocks", change: "-3.5%" },
-      { name: "Forex Patterns", change: "+7.2%" },
-    ],
-    news: [
-      { headline: "Fed Rate Decision Impact", source: "Financial Times" },
-      { headline: "Emerging Market Opportunities", source: "Bloomberg" },
-      { headline: "AI Trading Innovations", source: "Wall Street Journal" },
-    ],
-  };
+  useEffect(() => {
+    const generateCandles = () => {
+      let lastPrice = 50000;
+      const newCandles = Array.from({ length: 25 }, (_, index) => {
+        const open = lastPrice;
+        const volatility = Math.random() * 2000;
+        const close = open + (Math.random() > 0.5 ? volatility : -volatility);
+        const high = Math.max(open, close) + Math.random() * 1000;
+        const low = Math.min(open, close) - Math.random() * 1000;
+        const color = close > open ? "green" : "red";
+        lastPrice = close;
+
+        return { open, close, high, low, color };
+      });
+      setCandles(newCandles);
+    };
+
+    generateCandles();
+    const interval = setInterval(generateCandles, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const maxPrice = Math.max(...candles.map((c) => c.high));
+  const minPrice = Math.min(...candles.map((c) => c.low));
 
   return (
+    <div className="w-full h-[300px] relative overflow-hidden">
+      <svg viewBox="0 0 2000 300" className="w-full h-full">
+        <defs>
+          <linearGradient>
+            <stop offset="0%" stopColor="rgba(30,40,60,0.3)" />
+            <stop offset="100%" stopColor="rgba(30,40,60,0.6)" />
+          </linearGradient>
+        </defs>
+        <rect
+          x="0"
+          y="0"
+          width="2000"
+          height="300"
+          fill="url(#graphGradient)"
+        />
+        {candles.map((candle, index) => {
+          const x = index * 80 + 40;
+          const width = 30;
+          const scaleY = 250 / (maxPrice - minPrice);
+          const bodyHeight = Math.abs(candle.close - candle.open) * scaleY;
+          const bodyY = 300 - (candle.close - minPrice) * scaleY;
+          const wickHeight = (candle.high - candle.low) * scaleY;
+          const wickY = 300 - (candle.high - minPrice) * scaleY;
+
+          return (
+            <g key={index} className="transition-all duration-500 ease-in-out">
+              <line
+                x1={x}
+                y1={wickY}
+                x2={x}
+                y2={wickY + wickHeight}
+                stroke={candle.color === "green" ? "#10B981" : "#EF4444"}
+                strokeWidth="3"
+              />
+              <rect
+                x={x - width / 2}
+                y={bodyY}
+                width={width}
+                height={bodyHeight}
+                fill={candle.color === "green" ? "#10B981" : "#EF4444"}
+                className="transition-all duration-500 ease-in-out"
+              />
+            </g>
+          );
+        })}
+      </svg>
+    </div>
+  );
+};
+
+const Hero = () => {
+  const [showDisclaimer, setShowDisclaimer] = useState(true);
+  return (
     <>
-      {showDisclaimer && <TradingDisclaimer onAccept={() => setShowDisclaimer(false)} />}
-      <div className="bg-black text-white min-h-screen flex items-center justify-center px-6 relative overflow-hidden">
-        <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center relative z-10">
-          <div className="space-y-8">
-            <h1 className="text-7xl font-bold mb-6 text-[#BC6FF1]">
-              Virtal Ventures
-            </h1>
-            <p className="text-2xl mb-8 text-gray-300 max-w-2xl">
-              Transform Your Trading Journey with Intelligent Learning, Real-Time
-              Insights, and Advanced Strategies
-            </p>
+      {showDisclaimer && (
+        <TradingDisclaimer onAccept={() => setShowDisclaimer(false)} />
+      )}
+      <div className="relative min-h-screen w-full bg-black overflow-hidden flex flex-col items-center justify-center py-16 px-6">
+        <Particles
+          className="absolute inset-0"
+          quantity={50}
+          color="#ffffff"
+          refresh={false}
+        />
+        
+        <div className="w-full max-w-xl text-center space-y-8  mt-48 relative z-10">
+          <h1 className="text-6xl font-bold text-white">Virtual Ventures</h1>
+          <p className="text-2xl  text-gray-300">
+            Master Stocks, Crypto and Real-estate Trading at one Space.
+          </p>
 
-            <div className="flex space-x-6">
-              <button className="flex items-center space-x-3 px-8 py-4 text-lg rounded-xl font-bold bg-[#52057B] text-white shadow-lg shadow-[#52057B]/40">
-                Start Learning <ChevronRight className="ml-2 w-6 h-6" />
-              </button>
-              <button className="flex items-center space-x-3 px-8 py-4 text-lg rounded-xl font-bold border-2 border-[#892CDC] text-[#892CDC] hover:bg-[#892CDC]/20 transition-all duration-300">
-                <TrendingUp className="mr-2 w-6 h-6" /> Market Dashboard
-              </button>
-            </div>
-
-            <div className="flex space-x-8 mt-12 text-gray-300">
-              <div className="flex items-center space-x-3">
-                <BookOpen className="w-8 h-8 text-[#892CDC]" />
-                <span className="text-xl">100+ Courses</span>
-              </div>
-              <div className="flex items-center space-x-3">
-                <BarChart2 className="w-8 h-8 text-[#BC6FF1]" />
-                <span className="text-xl">Advanced Analytics</span>
-              </div>
-            </div>
+          <div className="flex justify-center space-x-6 ">
+            <button className="flex items-center space-x-3 px-8 py-4 text-lg rounded-xl font-bold bg-white text-black hover:bg-gray-200 transition-all">
+              Start Trading <ChevronRight className="ml-2 w-6 h-6" />
+            </button>
+            <button className="flex items-center space-x-3 px-8 py-4 text-lg rounded-xl font-bold border-2 border-white text-white hover:bg-white/10 transition-all duration-300">
+              <TrendingUp className="mr-2 w-6 h-6" /> Dashboard
+            </button>
           </div>
-
-          <div className="relative">
-            <div className="absolute -top-1/4 -right-1/4 w-96 h-96 rounded-full opacity-30 blur-3xl bg-[#52057B]"></div>
-            <div className="relative z-10 bg-[#892CDC]/10 p-8 rounded-3xl border border-[#892CDC]/30 backdrop-blur-xl">
-              <div className="flex justify-between mb-6">
-                {["Courses", "Trends", "News"].map((tab) => (
-                  <button
-                    key={tab.toLowerCase()}
-                    onClick={() => setActiveTab(tab.toLowerCase())}
-                    className={`px-4 py-2 rounded-lg transition-all ${
-                      activeTab === tab.toLowerCase()
-                        ? "bg-[#52057B] text-white"
-                        : "text-[#BC6FF1] hover:bg-[#892CDC]/20"
-                    }`}
-                  >
-                    {tab}
-                  </button>
-                ))}
-              </div>
-
-              {activeTab === "courses" && (
-                <div>
-                  <h3 className="text-2xl font-bold mb-4 text-[#BC6FF1]">
-                    Learning Progress
-                  </h3>
-                  {dashboardSections.courses.map((course, index) => (
-                    <div key={index} className="mb-4">
-                      <div className="flex justify-between text-sm mb-1">
-                        <span>{course.title}</span>
-                        <span>{course.progress}%</span>
-                      </div>
-                      <div className="bg-[#52057B]/30 rounded-full h-2">
-                        <div
-                          className="bg-[#892CDC] rounded-full h-2"
-                          style={{ width: `${course.progress}%` }}
-                        ></div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {activeTab === "trends" && (
-                <div>
-                  <h3 className="text-2xl font-bold mb-4 text-[#BC6FF1]">
-                    Market Trends
-                  </h3>
-                  {dashboardSections.trends.map((trend, index) => (
-                    <div
-                      key={index}
-                      className="flex justify-between items-center bg-[#52057B]/20 p-3 rounded-xl mb-3"
-                    >
-                      <span>{trend.name}</span>
-                      <span
-                        className={trend.change.startsWith("+")
-                          ? "text-green-400"
-                          : "text-red-400"}
-                      >
-                        {trend.change}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {activeTab === "news" && (
-                <div>
-                  <h3 className="text-2xl font-bold mb-4 text-[#BC6FF1]">
-                    Latest News
-                  </h3>
-                  {dashboardSections.news.map((item, index) => (
-                    <div
-                      key={index}
-                      className="bg-[#52057B]/20 p-3 rounded-xl mb-3 hover:bg-[#892CDC]/20 transition-all"
-                    >
-                      <h4 className="font-semibold">{item.headline}</h4>
-                      <p className="text-sm text-gray-400">{item.source}</p>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+        </div>
+        <div className=" mt-48 w-full">
+          <div className="w-full">
+            <BitcoinTradingGraph />
           </div>
         </div>
       </div>
