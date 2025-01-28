@@ -130,9 +130,9 @@ const Market = () => {
   }, [isSearching]);
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-black text-white py-24">
       {/* Search Bar */}
-      <div className="sticky top-0 bg-black/90 backdrop-blur-sm border-b border-gray-800 px-4 py-4 z-50">
+      <div className="sticky top-0 bg-black/90 backdrop-blur-sm border-b border-gray-800 px-4 py-4">
         <div className="max-w-7xl mx-auto flex gap-3">
           <div className="relative flex-1">
             <input
