@@ -5,7 +5,7 @@ import cors from "cors";
 import cookieParser from 'cookie-parser';
 import compression from "compression";
 import emailRoute from './Routes/email.route.js'
-
+import stockRoute from './Routes/stock.route.js'
 
 // Load environment variables
 dotenv.config();
@@ -49,6 +49,7 @@ app.get('/health', (req, res) => {
 
 // API routes
 app.use('/api',emailRoute)
+app.use('/api',stockRoute)
 
 
 
