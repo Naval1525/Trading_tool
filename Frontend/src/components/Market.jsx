@@ -1,43 +1,112 @@
 import React, { useState, useEffect } from "react";
-import {
-  Search,
-  TrendingUp,
-  TrendingDown,
-  ChevronLeft,
-  ChevronRight,
-} from "lucide-react";
+import { Search, TrendingUp, TrendingDown, X } from "lucide-react";
+
+const StockCard = ({ stock }) => (
+  <div className="bg-gray-900 rounded-lg p-4 hover:bg-gray-800 transition-all border border-gray-800 hover:border-gray-700">
+    <div className="flex justify-between items-start mb-2">
+      <span className="font-mono text-lg font-bold text-blue-400">
+        {stock.symbol}
+      </span>
+      <div
+        className={`flex items-center ${
+          stock.change >= 0 ? "text-green-400" : "text-red-400"
+        }`}
+      >
+        {stock.change != null && (
+          <>
+            {stock.change >= 0 ? (
+              <TrendingUp size={16} className="mr-1" />
+            ) : (
+              <TrendingDown size={16} className="mr-1" />
+            )}
+            {Math.abs(stock.change).toFixed(2)}%
+          </>
+        )}
+      </div>
+    </div>
+    <div className="text-sm text-gray-400 mb-2 truncate">{stock.name}</div>
+    <div className="text-lg font-semibold">
+      ${stock.price?.toFixed(2) || "N/A"}
+    </div>
+  </div>
+);
+
+const SectionTitle = ({ children }) => (
+  <h2 className="text-xl font-bold mb-4 text-gray-200 border-b border-gray-800 pb-2">
+    {children}
+  </h2>
+);
 
 const Market = () => {
-  const [symbols, setSymbols] = useState([]);
-  const [stocks, setStocks] = useState([]);
+  const [marketData, setMarketData] = useState({
+    topTrades: [],
+    mostTraded: [],
+    popular: [],
+    gainersLarge: [],
+    gainersMid: [],
+    gainersSmall: [],
+    losersLarge: [],
+    losersMid: [],
+    losersSmall: [],
+    intraday: [],
+  });
   const [searchTerm, setSearchTerm] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalSymbols, setTotalSymbols] = useState(0);
+  const [isSearching, setIsSearching] = useState(false);
 
-  useEffect(() => {
-    fetchSymbols();
-  }, [page, searchTerm]);
-
-  useEffect(() => {
-    if (symbols.length > 0) {
-      fetchStockData(symbols.map((s) => s.symbol));
-    }
-  }, [symbols]);
-
-  const fetchSymbols = async () => {
+  const fetchMarketData = async () => {
     try {
-      setLoading(true);
+      // Example symbols for each category (you should replace these with actual API calls)
+      const topTrades = await fetchStockData(["AAPL", "MSFT", "GOOGL", "AMZN"]);
+      const mostTraded = await fetchStockData(["TSLA", "NVDA", "AMD", "META"]);
+      const popular = await fetchStockData(["NFLX", "DIS", "PYPL", "INTC"]);
+      // ... fetch other categories
+
+      setMarketData({
+        topTrades,
+        mostTraded,
+        popular,
+        gainersLarge: await fetchStockData(["JPM", "BAC", "WFC"]),
+        gainersMid: await fetchStockData(["SNAP", "PINS", "DASH"]),
+        gainersSmall: await fetchStockData(["GME", "AMC", "BB"]),
+        losersLarge: await fetchStockData(["IBM", "INTC", "CSCO"]),
+        losersMid: await fetchStockData(["PLTR", "SOFI", "HOOD"]),
+        losersSmall: await fetchStockData(["WISH", "BBBY", "NOK"]),
+        intraday: await fetchStockData(["SPY", "QQQ", "IWM"]),
+      });
+      setLoading(false);
+    } catch (err) {
+      setError(err.message);
+      setLoading(false);
+    }
+  };
+
+  const fetchStockData = async (symbols) => {
+    try {
       const response = await fetch(
-        `http://localhost:8000/api/symbols?page=${page}&limit=50&search=${searchTerm}`
+        `http://localhost:8000/api/stocks?symbols=${symbols.join(",")}`
       );
-      if (!response.ok) throw new Error("Failed to fetch symbols");
-      const data = await response.json();
-      setSymbols(data.data);
-      setTotalPages(data.totalPages);
-      setTotalSymbols(data.total);
+      if (!response.ok) throw new Error("Failed to fetch stock data");
+      return await response.json();
+    } catch (error) {
+      console.error("Error fetching stocks:", error);
+      return [];
+    }
+  };
+
+  const handleSearch = async () => {
+    if (!searchTerm) {
+      setIsSearching(false);
+      return;
+    }
+
+    setLoading(true);
+    setIsSearching(true);
+    try {
+      const data = await fetchStockData([searchTerm.toUpperCase()]);
+      setSearchResults(data);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -45,121 +114,182 @@ const Market = () => {
     }
   };
 
-  const fetchStockData = async (symbolsList) => {
-    try {
-      const response = await fetch(
-        `http://localhost:8000/api/stocks?symbols=${symbolsList.join(",")}`
-      );
-      if (!response.ok) throw new Error("Failed to fetch stock data");
-      const data = await response.json();
-      setStocks(data);
-    } catch (err) {
-      console.error("Error fetching stock data:", err);
+  const clearSearch = () => {
+    setSearchTerm("");
+    setIsSearching(false);
+    setSearchResults([]);
+  };
+
+  useEffect(() => {
+    fetchMarketData();
+    // Only set up interval if not searching
+    if (!isSearching) {
+      const interval = setInterval(fetchMarketData, 30000);
+      return () => clearInterval(interval);
     }
-  };
-
-  const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value);
-    setPage(1); // Reset to first page when searching
-  };
-
-  const handlePageChange = (newPage) => {
-    setPage(newPage);
-  };
+  }, [isSearching]);
 
   return (
-    <div className="bg-black min-h-screen text-white pt-20 px-4 md:px-8">
-      <div className="max-w-6xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold">Stock Market Overview</h1>
-          <div className="text-gray-400">Total Symbols: {totalSymbols}</div>
-        </div>
-
-        <div className="relative mb-6">
-          <input
-            type="text"
-            placeholder="Search by symbol or company name..."
-            value={searchTerm}
-            onChange={handleSearchChange}
-            className="w-full bg-gray-800 text-white px-4 py-2 pl-10 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <Search className="absolute left-3 top-2.5 text-gray-400" size={20} />
-        </div>
-
-        <div className="bg-gray-900 rounded-lg overflow-hidden">
-          <div className="grid grid-cols-5 gap-4 px-6 py-3 bg-gray-800 font-semibold">
-            <div>Symbol</div>
-            <div>Name</div>
-            <div className="text-right">Price</div>
-            <div className="text-right">24h Change</div>
-            <div className="text-right">Volume</div>
+    <div className="min-h-screen bg-black text-white">
+      {/* Search Bar */}
+      <div className="sticky top-0 bg-black/90 backdrop-blur-sm border-b border-gray-800 px-4 py-4 z-50">
+        <div className="max-w-7xl mx-auto flex gap-3">
+          <div className="relative flex-1">
+            <input
+              type="text"
+              placeholder="Search stocks by symbol (e.g., AAPL)"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+              className="w-full bg-gray-900 text-white px-4 py-2 pl-10 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <Search
+              className="absolute left-3 top-2.5 text-gray-400"
+              size={20}
+            />
+            {searchTerm && (
+              <button
+                onClick={clearSearch}
+                className="absolute right-3 top-2.5 text-gray-400 hover:text-white"
+              >
+                <X size={20} />
+              </button>
+            )}
           </div>
+          <button
+            onClick={handleSearch}
+            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Search
+          </button>
+        </div>
+      </div>
 
-          {loading ? (
-            <div className="p-8 text-center text-gray-400">
-              Loading market data...
-            </div>
-          ) : (
-            <div className="divide-y divide-gray-800">
-              {stocks.map((stock) => (
-                <div
-                  key={stock.symbol}
-                  className="grid grid-cols-5 gap-4 px-6 py-4 hover:bg-gray-800 transition-colors"
-                >
-                  <div className="font-mono text-blue-400">{stock.symbol}</div>
-                  <div className="truncate">{stock.name}</div>
-                  <div className="text-right">
-                    ${stock.price?.toFixed(2) || "N/A"}
-                  </div>
-                  <div
-                    className={`text-right flex items-center justify-end ${
-                      stock.change >= 0 ? "text-green-400" : "text-red-400"
-                    }`}
-                  >
-                    {stock.change != null ? (
-                      <>
-                        {stock.change >= 0 ? (
-                          <TrendingUp size={16} className="mr-1" />
-                        ) : (
-                          <TrendingDown size={16} className="mr-1" />
-                        )}
-                        {Math.abs(stock.change).toFixed(2)}%
-                      </>
-                    ) : (
-                      "N/A"
-                    )}
-                  </div>
-                  <div className="text-right">
-                    {stock.volume ? stock.volume.toLocaleString() : "N/A"}
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        {loading ? (
+          <div className="text-center text-gray-400 py-20">
+            Loading market data...
+          </div>
+        ) : error ? (
+          <div className="text-center text-red-400 py-20">Error: {error}</div>
+        ) : isSearching ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {searchResults.map((stock) => (
+              <StockCard key={stock.symbol} stock={stock} />
+            ))}
+          </div>
+        ) : (
+          <div className="space-y-8">
+            <section>
+              <SectionTitle>Top Trades</SectionTitle>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {marketData.topTrades.map((stock) => (
+                  <StockCard key={stock.symbol} stock={stock} />
+                ))}
+              </div>
+            </section>
+
+            <section>
+              <SectionTitle>Most Traded</SectionTitle>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {marketData.mostTraded.map((stock) => (
+                  <StockCard key={stock.symbol} stock={stock} />
+                ))}
+              </div>
+            </section>
+
+            <section>
+              <SectionTitle>Popular</SectionTitle>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {marketData.popular.map((stock) => (
+                  <StockCard key={stock.symbol} stock={stock} />
+                ))}
+              </div>
+            </section>
+
+            <section>
+              <SectionTitle>Gainers</SectionTitle>
+              <div className="space-y-6">
+                <div>
+                  <h3 className="text-lg font-semibold mb-3 text-gray-400">
+                    Large Cap
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                    {marketData.gainersLarge.map((stock) => (
+                      <StockCard key={stock.symbol} stock={stock} />
+                    ))}
                   </div>
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
+                <div>
+                  <h3 className="text-lg font-semibold mb-3 text-gray-400">
+                    Mid Cap
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                    {marketData.gainersMid.map((stock) => (
+                      <StockCard key={stock.symbol} stock={stock} />
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold mb-3 text-gray-400">
+                    Small Cap
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                    {marketData.gainersSmall.map((stock) => (
+                      <StockCard key={stock.symbol} stock={stock} />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </section>
 
-        {/* Pagination */}
-        <div className="mt-6 flex items-center justify-between">
-          <div className="text-gray-400">
-            Page {page} of {totalPages}
+            <section>
+              <SectionTitle>Losers</SectionTitle>
+              <div className="space-y-6">
+                <div>
+                  <h3 className="text-lg font-semibold mb-3 text-gray-400">
+                    Large Cap
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                    {marketData.losersLarge.map((stock) => (
+                      <StockCard key={stock.symbol} stock={stock} />
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold mb-3 text-gray-400">
+                    Mid Cap
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                    {marketData.losersMid.map((stock) => (
+                      <StockCard key={stock.symbol} stock={stock} />
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold mb-3 text-gray-400">
+                    Small Cap
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                    {marketData.losersSmall.map((stock) => (
+                      <StockCard key={stock.symbol} stock={stock} />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section>
+              <SectionTitle>Top Intraday</SectionTitle>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {marketData.intraday.map((stock) => (
+                  <StockCard key={stock.symbol} stock={stock} />
+                ))}
+              </div>
+            </section>
           </div>
-          <div className="flex gap-2">
-            <button
-              onClick={() => handlePageChange(page - 1)}
-              disabled={page === 1}
-              className="p-2 rounded-lg bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <ChevronLeft size={20} />
-            </button>
-            <button
-              onClick={() => handlePageChange(page + 1)}
-              disabled={page === totalPages}
-              className="p-2 rounded-lg bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <ChevronRight size={20} />
-            </button>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );
