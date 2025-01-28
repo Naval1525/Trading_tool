@@ -2,14 +2,19 @@ import React, { useState, useEffect } from "react";
 import { Search, TrendingUp, TrendingDown, X } from "lucide-react";
 
 const StockCard = ({ stock }) => (
-  <div className="bg-gray-900 rounded-lg p-4 hover:bg-gray-800 transition-all border border-gray-800 hover:border-gray-700">
+  <div className="bg-gradient-to-br from-gray-900 to-gray-950 rounded-xl p-4 hover:shadow-lg hover:shadow-blue-900/20 transition-all border border-gray-800 hover:border-blue-500/30">
     <div className="flex justify-between items-start mb-2">
-      <span className="font-mono text-lg font-bold text-blue-400">
-        {stock.symbol}
-      </span>
+      <div className="space-y-1">
+        <span className="font-mono text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-blue-500">
+          {stock.symbol}
+        </span>
+        <div className="text-sm text-gray-400 truncate max-w-[200px]">
+          {stock.name}
+        </div>
+      </div>
       <div
         className={`flex items-center ${
-          stock.change >= 0 ? "text-green-400" : "text-red-400"
+          stock.change >= 0 ? "text-emerald-400" : "text-rose-400"
         }`}
       >
         {stock.change != null && (
@@ -19,22 +24,24 @@ const StockCard = ({ stock }) => (
             ) : (
               <TrendingDown size={16} className="mr-1" />
             )}
-            {Math.abs(stock.change).toFixed(2)}%
+            <span className="font-mono">
+              {Math.abs(stock.change).toFixed(2)}%
+            </span>
           </>
         )}
       </div>
     </div>
-    <div className="text-sm text-gray-400 mb-2 truncate">{stock.name}</div>
-    <div className="text-lg font-semibold">
+    <div className="text-xl font-semibold font-mono mt-4">
       ${stock.price?.toFixed(2) || "N/A"}
     </div>
   </div>
 );
 
 const SectionTitle = ({ children }) => (
-  <h2 className="text-xl font-bold mb-4 text-gray-200 border-b border-gray-800 pb-2">
-    {children}
-  </h2>
+  <div className="flex items-center space-x-3 mb-6">
+    <h2 className="text-xl font-bold text-gray-100">{children}</h2>
+    <div className="flex-1 h-px bg-gradient-to-r from-gray-800 to-transparent"></div>
+  </div>
 );
 
 const Market = () => {
@@ -130,10 +137,10 @@ const Market = () => {
   }, [isSearching]);
 
   return (
-    <div className="min-h-screen bg-black text-white py-24">
+    <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 text-white py-24">
       {/* Search Bar */}
-      <div className="sticky top-0 bg-black/90 backdrop-blur-sm border-b border-gray-800 px-4 py-4">
-        <div className="max-w-7xl mx-auto flex gap-3">
+      <div className="sticky top-0 bg-black/80 backdrop-blur-md border-b border-gray-800/50 px-4 py-4 z-50">
+        <div className="max-w-6xl mx-auto flex gap-3">
           <div className="relative flex-1">
             <input
               type="text"
@@ -141,16 +148,16 @@ const Market = () => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-              className="w-full bg-gray-900 text-white px-4 py-2 pl-10 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full bg-gray-900/50 text-white px-4 py-2 pl-10 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 border border-gray-800 placeholder-gray-500"
             />
             <Search
-              className="absolute left-3 top-2.5 text-gray-400"
+              className="absolute left-3 top-2.5 text-gray-500"
               size={20}
             />
             {searchTerm && (
               <button
                 onClick={clearSearch}
-                className="absolute right-3 top-2.5 text-gray-400 hover:text-white"
+                className="absolute right-3 top-2.5 text-gray-500 hover:text-white transition-colors"
               >
                 <X size={20} />
               </button>
@@ -158,7 +165,7 @@ const Market = () => {
           </div>
           <button
             onClick={handleSearch}
-            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="px-6 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-colors font-medium"
           >
             Search
           </button>
@@ -169,10 +176,12 @@ const Market = () => {
       <div className="max-w-7xl mx-auto px-4 py-8">
         {loading ? (
           <div className="text-center text-gray-400 py-20">
-            Loading market data...
+            <div className="animate-pulse">Loading market data...</div>
           </div>
         ) : error ? (
-          <div className="text-center text-red-400 py-20">Error: {error}</div>
+          <div className="text-center text-rose-400 py-20 bg-rose-950/20 rounded-xl border border-rose-900">
+            Error: {error}
+          </div>
         ) : isSearching ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {searchResults.map((stock) => (
@@ -180,7 +189,7 @@ const Market = () => {
             ))}
           </div>
         ) : (
-          <div className="space-y-8">
+          <div className="space-y-12">
             <section>
               <SectionTitle>Top Trades</SectionTitle>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
@@ -210,9 +219,10 @@ const Market = () => {
 
             <section>
               <SectionTitle>Gainers</SectionTitle>
-              <div className="space-y-6">
+              <div className="space-y-8">
                 <div>
-                  <h3 className="text-lg font-semibold mb-3 text-gray-400">
+                  <h3 className="text-lg font-semibold mb-4 text-gray-300 flex items-center">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 mr-2"></span>
                     Large Cap
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
