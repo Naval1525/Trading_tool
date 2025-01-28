@@ -54,7 +54,6 @@ export const register = async (req, res) => {
     res.status(500).json({ message: "Registration failed" });
   }
 };
-
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -70,28 +69,78 @@ export const login = async (req, res) => {
     }
 
     const tokenData = {
-        userId: user.email // Using email as the unique identifier
-      };
+      userId: user.email
+    };
     const token = await jwt.sign(tokenData, process.env.JWT_SECRET, { expiresIn: '1d' });
 
-    res.status(200).cookie("token", token, {
-        maxAge: 1 * 24 * 60 * 60 * 1000,
-        httpOnly: true,
-        sameSite: 'strict',
-        path: '/'
-      }).json({
-      message: "Login successful",
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-      },
-    });
+
+
+res.status(200).cookie("token", token, {
+  maxAge: 1 * 24 * 60 * 60 * 1000, // 1 day
+  httpOnly: true,
+  sameSite: 'strict',
+  path: '/'
+}).json({
+  message: "Login successful",
+  user: {
+    id: user._id,
+    name: user.name,
+    email: user.email,
+    token,
+  },
+});
+
   } catch (error) {
     console.error("Login error:", error);
     res.status(500).json({ message: "Login failed" });
   }
 };
+
+export const verifyAuth = async (req, res) => {
+  try {
+    res.status(200).json({ authenticated: true });
+  } catch (error) {
+    res.status(401).json({ authenticated: false });
+  }
+};
+
+// export const login = async (req, res) => {
+//   try {
+//     const { email, password } = req.body;
+
+//     const user = await User.findOne({ email });
+//     if (!user) {
+//       return res.status(401).json({ message: "Invalid credentials" });
+//     }
+
+//     const validPassword = await bcrypt.compare(password, user.password);
+//     if (!validPassword) {
+//       return res.status(401).json({ message: "Invalid credentials" });
+//     }
+
+//     const tokenData = {
+//         userId: user.email // Using email as the unique identifier
+//       };
+//     const token = await jwt.sign(tokenData, process.env.JWT_SECRET, { expiresIn: '1d' });
+
+//     res.status(200).cookie("token", token, {
+//         maxAge: 1 * 24 * 60 * 60 * 1000,
+//         httpOnly: true,
+//         sameSite: 'strict',
+//         path: '/'
+//       }).json({
+//       message: "Login successful",
+//       user: {
+//         id: user._id,
+//         name: user.name,
+//         email: user.email,
+//       },
+//     });
+//   } catch (error) {
+//     console.error("Login error:", error);
+//     res.status(500).json({ message: "Login failed" });
+//   }
+// };
 
 export const logout = (req, res) => {
   res.clearCookie("accessToken");

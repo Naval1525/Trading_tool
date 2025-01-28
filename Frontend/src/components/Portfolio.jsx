@@ -12,6 +12,8 @@ import {
 
 const Portfolio = () => {
   const { userId } = useParams(); // Get userId from URL
+  const token = localStorage.getItem("token");
+  console.log(token);
 
   const navigate = useNavigate();
   const [dashboardData, setDashboardData] = useState(null);
@@ -19,19 +21,25 @@ const Portfolio = () => {
   const [error, setError] = useState(null);
 
   // Fetch dashboard data
+
+
   useEffect(() => {
     const fetchDashboardData = async () => {
+      if (!token) {
+        navigate('/login'); // Redirect if no token
+        return;
+      }
+
       try {
         const response = await fetch(`http://localhost:8000/api/dashboard/${userId}`, {
-          credentials: 'include', // Include cookies
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
           }
         });
 
         if (response.status === 401) {
-          // Handle unauthorized access
-          navigate('/login');
+          navigate('/login'); // Handle unauthorized access
           return;
         }
 

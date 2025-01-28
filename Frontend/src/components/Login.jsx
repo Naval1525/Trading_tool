@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import Particles from "./ui/particles";
 import ShineBorder from "./ui/ShineBorder";
+import Cookies from 'js-cookie';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -20,7 +21,6 @@ const Login = () => {
       window.history.replaceState({}, document.title);
     }
   }, [location.state]);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -29,7 +29,7 @@ const Login = () => {
     try {
       const response = await fetch("http://localhost:8000/api/login", {
         method: "POST",
-        credentials: 'include', // Add this line to enable cookies
+        credentials: 'include', // Ensure cookies are included with the request
         headers: {
           "Content-Type": "application/json",
           'Accept': 'application/json'
@@ -43,9 +43,11 @@ const Login = () => {
         throw new Error(data.message || "Login failed");
       }
 
-      // Store user info in localStorage
+      // Store user info in localStorage (No need to store token here since it's in the cookie)
       localStorage.setItem("userId", data.user.id);
       localStorage.setItem("userName", data.user.name);
+      localStorage.setItem('token',data.user.token);
+
 
       // Redirect to home page after successful login
       navigate('/');
@@ -56,6 +58,45 @@ const Login = () => {
       setLoading(false);
     }
   };
+
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   setLoading(true);
+  //   setError("");
+
+  //   try {
+  //     const response = await fetch("http://localhost:8000/api/login", {
+  //       method: "POST",
+  //       credentials: 'include', // Add this line to enable cookies
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //         'Accept': 'application/json'
+  //       },
+  //       body: JSON.stringify(formData),
+  //     });
+
+  //     const data = await response.json();
+
+  //     if (!response.ok) {
+  //       throw new Error(data.message || "Login failed");
+  //     }
+
+
+  //     // Store user info in localStorage
+  //     localStorage.setItem("userId", data.user.id);
+  //     localStorage.setItem("userName", data.user.name);
+
+
+
+  //     // Redirect to home page after successful login
+  //     navigate('/');
+  //   } catch (err) {
+  //     console.error('Login error:', err);
+  //     setError(err.message);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   const handleChange = (e) => {
     const { name, value } = e.target;

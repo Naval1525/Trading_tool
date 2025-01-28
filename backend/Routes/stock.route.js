@@ -9,6 +9,7 @@ import router from "./email.route.js";
 router.post('/buy',verifyToken, buyStock);
 router.post('/sell',verifyToken, sellStock);
 router.get('/dashboard/:userId',verifyToken, getDashboard);
+
 router.post('/register', register);
 router.post('/login', login);
 router.post('/logout', logout);
