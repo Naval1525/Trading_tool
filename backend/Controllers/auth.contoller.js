@@ -39,7 +39,7 @@ export const register = async (req, res) => {
     });
 
     await user.save();
-    setTokenCookies(res, user._id);
+
 
     res.status(201).json({
       message: "Registration successful",
@@ -69,9 +69,17 @@ export const login = async (req, res) => {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    setTokenCookies(res, user._id);
+    const tokenData = {
+        userId: user.email // Using email as the unique identifier
+      };
+    const token = await jwt.sign(tokenData, process.env.JWT_SECRET, { expiresIn: '1d' });
 
-    res.json({
+    res.status(200).cookie("token", token, {
+        maxAge: 1 * 24 * 60 * 60 * 1000,
+        httpOnly: true,
+        sameSite: 'strict',
+        path: '/'
+      }).json({
       message: "Login successful",
       user: {
         id: user._id,

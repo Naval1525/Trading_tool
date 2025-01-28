@@ -529,7 +529,8 @@ export const sellStock = async (req, res) => {
 
 export const getDashboard = async (req, res) => {
   try {
-    const userId = req.user.userId;
+    const { userId } = req.params;
+
 
     const user = await User.findById(userId)
       .select('stocks accountBalance activities name email')

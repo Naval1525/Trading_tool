@@ -15,10 +15,8 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // Check for success message from registration
     if (location.state?.message) {
       setSuccess(location.state.message);
-      // Clear the message after displaying
       window.history.replaceState({}, document.title);
     }
   }, [location.state]);
@@ -31,8 +29,10 @@ const Login = () => {
     try {
       const response = await fetch("http://localhost:8000/api/login", {
         method: "POST",
+        credentials: 'include', // Add this line to enable cookies
         headers: {
           "Content-Type": "application/json",
+          'Accept': 'application/json'
         },
         body: JSON.stringify(formData),
       });
@@ -46,10 +46,11 @@ const Login = () => {
       // Store user info in localStorage
       localStorage.setItem("userId", data.user.id);
       localStorage.setItem("userName", data.user.name);
-      
+
       // Redirect to home page after successful login
       navigate('/');
     } catch (err) {
+      console.error('Login error:', err);
       setError(err.message);
     } finally {
       setLoading(false);
@@ -63,6 +64,7 @@ const Login = () => {
       [name]: value,
     }));
   };
+
 
   return (
     <div className="relative min-h-screen flex items-center justify-center bg-black py-12 px-4 sm:px-6 lg:px-8">
