@@ -1,31 +1,86 @@
-import User from "../Models/user.model.js";
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import User from '../models/user.model.js';
 
+const setTokenCookies = (res, userId) => {
+  const accessToken = jwt.sign(
+    { userId },
+    process.env.JWT_SECRET,
+    { expiresIn: '1h' }
+  );
 
-export const registerUser = async (req, res) => {
-    try {
-        const { name, email, password, phoneNumber } = req.body;
+  res.cookie('accessToken', accessToken, cookieOptions);
+};
 
-        // Create new user
-        const user = new User({
-            name,
-            email,
-            password, // In production, you should hash this
-            phoneNumber,
-            accountBalance: 10000, // Starting balance
-            stocks: [],
-            activities: []
-        });
+export const register = async (req, res) => {
+  try {
+    const { name, email, password, phoneNumber } = req.body;
 
-        const savedUser = await user.save();
-
-        res.status(201).json({
-            message: 'User created successfully',
-            userId: savedUser._id,
-            name: savedUser.name,
-            email: savedUser.email
-        });
-    } catch (error) {
-        console.error('Registration error:', error);
-        res.status(500).json({ message: error.message });
+    if (!name || !email || !password || !phoneNumber) {
+      return res.status(400).json({ message: 'All fields are required' });
     }
+
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: 'Email already registered' });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = new User({
+      name,
+      email,
+      password: hashedPassword,
+      phoneNumber
+    });
+
+    await user.save();
+    setTokenCookies(res, user._id);
+
+    res.status(201).json({
+      message: 'Registration successful',
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email
+      }
+    });
+  } catch (error) {
+    console.error('Registration error:', error);
+    res.status(500).json({ message: 'Registration failed' });
+  }
+};
+
+export const login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
+
+    const validPassword = await bcrypt.compare(password, user.password);
+    if (!validPassword) {
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
+
+    setTokenCookies(res, user._id);
+
+    res.json({
+      message: 'Login successful',
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email
+      }
+    });
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ message: 'Login failed' });
+  }
+};
+
+export const logout = (req, res) => {
+  res.clearCookie('accessToken');
+  res.json({ message: 'Logout successful' });
 };
