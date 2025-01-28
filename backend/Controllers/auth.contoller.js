@@ -1,15 +1,20 @@
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
-import User from '../models/user.model.js';
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import User from "../models/user.model.js";
+
+const cookieOptions = {
+  httpOnly: true, // Ensures the cookie is only accessible through HTTP(S), not via client-side JavaScript
+  secure: process.env.NODE_ENV === "production", // Ensures the cookie is only sent over HTTPS in production
+  sameSite: "strict", // Helps mitigate CSRF attacks
+  maxAge: 60 * 60 * 1000, // Cookie expiration time in milliseconds (1 hour in this case)
+};
 
 const setTokenCookies = (res, userId) => {
-  const accessToken = jwt.sign(
-    { userId },
-    process.env.JWT_SECRET,
-    { expiresIn: '1h' }
-  );
+  const accessToken = jwt.sign({ userId }, process.env.JWT_SECRET, {
+    expiresIn: "1h",
+  });
 
-  res.cookie('accessToken', accessToken, cookieOptions);
+  res.cookie("accessToken", accessToken, cookieOptions);
 };
 
 export const register = async (req, res) => {
@@ -17,12 +22,12 @@ export const register = async (req, res) => {
     const { name, email, password, phoneNumber } = req.body;
 
     if (!name || !email || !password || !phoneNumber) {
-      return res.status(400).json({ message: 'All fields are required' });
+      return res.status(400).json({ message: "All fields are required" });
     }
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({ message: 'Email already registered' });
+      return res.status(400).json({ message: "Email already registered" });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -30,23 +35,23 @@ export const register = async (req, res) => {
       name,
       email,
       password: hashedPassword,
-      phoneNumber
+      phoneNumber,
     });
 
     await user.save();
     setTokenCookies(res, user._id);
 
     res.status(201).json({
-      message: 'Registration successful',
+      message: "Registration successful",
       user: {
         id: user._id,
         name: user.name,
-        email: user.email
-      }
+        email: user.email,
+      },
     });
   } catch (error) {
-    console.error('Registration error:', error);
-    res.status(500).json({ message: 'Registration failed' });
+    console.error("Registration error:", error);
+    res.status(500).json({ message: "Registration failed" });
   }
 };
 
@@ -56,31 +61,31 @@ export const login = async (req, res) => {
 
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(401).json({ message: 'Invalid credentials' });
+      return res.status(401).json({ message: "Invalid credentials" });
     }
 
     const validPassword = await bcrypt.compare(password, user.password);
     if (!validPassword) {
-      return res.status(401).json({ message: 'Invalid credentials' });
+      return res.status(401).json({ message: "Invalid credentials" });
     }
 
     setTokenCookies(res, user._id);
 
     res.json({
-      message: 'Login successful',
+      message: "Login successful",
       user: {
         id: user._id,
         name: user.name,
-        email: user.email
-      }
+        email: user.email,
+      },
     });
   } catch (error) {
-    console.error('Login error:', error);
-    res.status(500).json({ message: 'Login failed' });
+    console.error("Login error:", error);
+    res.status(500).json({ message: "Login failed" });
   }
 };
 
 export const logout = (req, res) => {
-  res.clearCookie('accessToken');
-  res.json({ message: 'Logout successful' });
+  res.clearCookie("accessToken");
+  res.json({ message: "Logout successful" });
 };

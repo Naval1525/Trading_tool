@@ -3,6 +3,7 @@ import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { assets } from "./../assets/assets";
 
+
 const Navbar = () => {
   const [isLogoHovered, setIsLogoHovered] = useState(false);
 

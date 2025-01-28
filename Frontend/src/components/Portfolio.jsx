@@ -6,4 +6,4 @@ const Portfolio = () => {
   )
 }
 
-export default Portfolio
+export default Portfolio;

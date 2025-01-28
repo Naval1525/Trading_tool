@@ -1,7 +1,11 @@
-
-
 import React, { useState, useEffect } from "react";
-import { AlertTriangle, ChevronRight, TrendingUp, BookOpen, Award  } from "lucide-react";
+import {
+  AlertTriangle,
+  ChevronRight,
+  TrendingUp,
+  BookOpen,
+  Award,
+} from "lucide-react";
 import Particles from "../components/ui/particles";
 const TradingDisclaimer = ({ onAccept }) => {
   const [isRead, setIsRead] = useState(false);
@@ -158,7 +162,6 @@ const BitcoinTradingGraph = () => {
   );
 };
 
-
 const Hero = () => {
   const [showDisclaimer, setShowDisclaimer] = useState(true);
 
@@ -181,7 +184,8 @@ const Hero = () => {
               Learn Trading Risk-Free
             </h1>
             <p className="text-2xl text-gray-300">
-              Master the art of trading with virtual portfolios across Stocks and Real Estate
+              "Master the art of trading with virtual stock portfolios, honing
+              your skills risk-free!"
             </p>
             <div className="flex justify-center gap-4 text-gray-300 mt-6">
               <div className="flex items-center">
@@ -214,13 +218,23 @@ const Hero = () => {
           <div className="relative bg-gray-900 rounded-2xl p-8 shadow-2xl border border-white/10">
             <div className="flex justify-between items-center mb-6">
               <div>
-                <h2 className="text-2xl font-bold text-white">Paytm Practice Chart</h2>
-                <p className="text-gray-400">Learn price action with real-time data</p>
+                <h2 className="text-2xl font-bold text-white">
+                  Paytm Practice Chart
+                </h2>
+                <p className="text-gray-400">
+                  Learn price action with real-time data
+                </p>
               </div>
               <div className="flex gap-4">
-                <button className="px-4 py-2 rounded-lg bg-gray-800 text-white hover:bg-gray-700">1H</button>
-                <button className="px-4 py-2 rounded-lg bg-gray-800 text-white hover:bg-gray-700">1D</button>
-                <button className="px-4 py-2 rounded-lg bg-gray-800 text-white hover:bg-gray-700">1W</button>
+                <button className="px-4 py-2 rounded-lg bg-gray-800 text-white hover:bg-gray-700">
+                  1H
+                </button>
+                <button className="px-4 py-2 rounded-lg bg-gray-800 text-white hover:bg-gray-700">
+                  1D
+                </button>
+                <button className="px-4 py-2 rounded-lg bg-gray-800 text-white hover:bg-gray-700">
+                  1W
+                </button>
               </div>
             </div>
             <div className="h-96">
