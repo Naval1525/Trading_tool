@@ -10,6 +10,8 @@ import Login from "./components/Login";
 import Home from "./components/Home";
 import StockDetail from "./components/StockDetail";
 
+
+
 const App = () => {
   return (
     <div>

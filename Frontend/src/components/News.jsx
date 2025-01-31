@@ -1,23 +1,22 @@
-import React, { useState, useEffect } from 'react';
-
-const API_KEY = 'MLBI3No7LqpcIWmSPyWzlETsTjwGOKrs5gt3TSFx';
+import React, { useState, useEffect } from "react";
+const API_KEY = "MLBI3No7LqpcIWmSPyWzlETsTjwGOKrs5gt3TSFx";
 
 const ENTITY_TYPES = [
-  { value: 'equity', label: 'Stocks' },
-  { value: 'crypto', label: 'Crypto' },
-  { value: 'forex', label: 'Forex' },
-  { value: 'index', label: 'Market Indices' }
+  { value: "equity", label: "Stocks" },
+  { value: "crypto", label: "Crypto" },
+  { value: "forex", label: "Forex" },
+  { value: "index", label: "Market Indices" },
 ];
 
 const INDUSTRIES = [
-  'Technology',
-  'Financial Services',
-  'Healthcare',
-  'Consumer Cyclical',
-  'Energy',
-  'Industrials',
-  'Basic Materials',
-  'Real Estate'
+  "Technology",
+  "Financial Services",
+  "Healthcare",
+  "Consumer Cyclical",
+  "Energy",
+  "Industrials",
+  "Basic Materials",
+  "Real Estate",
 ];
 
 const News = () => {
@@ -25,72 +24,75 @@ const News = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [page, setPage] = useState(1);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState({
     entityTypes: [],
     industries: [],
-    sentiment: 'all',
-    timeRange: '1d'
+    sentiment: "all",
+    timeRange: "1d",
   });
 
   useEffect(() => {
     const fetchNews = async () => {
       try {
         setLoading(true);
-        const baseUrl = 'https://api.marketaux.com/v1/news/all';
+        const baseUrl = "https://api.marketaux.com/v1/news/all";
 
         const params = new URLSearchParams({
-          api_token: API_KEY,
-          language: 'en',
-          limit: '12',
+          api_token:API_KEY,
+          language: "en",
+          limit: "12",
           page: page.toString(),
-          must_have_entities: 'true'
+          must_have_entities: "true",
         });
 
         // Add search if present
         if (searchTerm) {
-          params.append('search', searchTerm);
+          params.append("search", searchTerm);
         }
 
         // Add entity types filter
         if (filters.entityTypes.length > 0) {
-          params.append('entity_types', filters.entityTypes.join(','));
+          params.append("entity_types", filters.entityTypes.join(","));
         }
 
         // Add industries filter
         if (filters.industries.length > 0) {
-          params.append('industries', filters.industries.join(','));
+          params.append("industries", filters.industries.join(","));
         }
 
         // Add sentiment filter
-        if (filters.sentiment === 'positive') {
-          params.append('sentiment_gte', '0.2');
-        } else if (filters.sentiment === 'negative') {
-          params.append('sentiment_lte', '-0.2');
+        if (filters.sentiment === "positive") {
+          params.append("sentiment_gte", "0.2");
+        } else if (filters.sentiment === "negative") {
+          params.append("sentiment_lte", "-0.2");
         }
 
         // Add time range
         const now = new Date();
         const publishedAfter = new Date();
         switch (filters.timeRange) {
-          case '1d':
+          case "1d":
             publishedAfter.setDate(now.getDate() - 1);
             break;
-          case '7d':
+          case "7d":
             publishedAfter.setDate(now.getDate() - 7);
             break;
-          case '30d':
+          case "30d":
             publishedAfter.setDate(now.getDate() - 30);
             break;
           default:
             publishedAfter.setDate(now.getDate() - 1);
         }
-        params.append('published_after', publishedAfter.toISOString().split('T')[0]);
+        params.append(
+          "published_after",
+          publishedAfter.toISOString().split("T")[0]
+        );
 
         const response = await fetch(`${baseUrl}?${params.toString()}`);
 
         if (!response.ok) {
-          throw new Error('Failed to fetch news');
+          throw new Error("Failed to fetch news");
         }
 
         const result = await response.json();
@@ -98,13 +100,13 @@ const News = () => {
         if (page === 1) {
           setNews(result.data);
         } else {
-          setNews(prev => [...prev, ...result.data]);
+          setNews((prev) => [...prev, ...result.data]);
         }
 
         setError(null);
       } catch (err) {
-        setError('Failed to load news. Please try again later.');
-        console.error('Error fetching news:', err);
+        setError("Failed to load news. Please try again later.");
+        console.error("Error fetching news:", err);
       } finally {
         setLoading(false);
       }
@@ -115,30 +117,30 @@ const News = () => {
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
   const getSentimentColor = (score) => {
-    if (!score) return 'bg-gray-100 text-gray-800';
-    if (score >= 0.5) return 'bg-green-100 text-green-800';
-    if (score > 0) return 'bg-blue-100 text-blue-800';
-    if (score <= -0.5) return 'bg-red-100 text-red-800';
-    return 'bg-orange-100 text-orange-800';
+    if (!score) return "bg-gray-100 text-gray-800";
+    if (score >= 0.5) return "bg-green-100 text-green-800";
+    if (score > 0) return "bg-blue-100 text-blue-800";
+    if (score <= -0.5) return "bg-red-100 text-red-800";
+    return "bg-orange-100 text-orange-800";
   };
 
   const resetFilters = () => {
     setFilters({
       entityTypes: [],
       industries: [],
-      sentiment: 'all',
-      timeRange: '1d'
+      sentiment: "all",
+      timeRange: "1d",
     });
-    setSearchTerm('');
+    setSearchTerm("");
     setPage(1);
   };
 
@@ -169,15 +171,22 @@ const News = () => {
               multiple
               value={filters.entityTypes}
               onChange={(e) => {
-                const values = Array.from(e.target.selectedOptions, option => option.value);
-                setFilters(prev => ({ ...prev, entityTypes: values }));
+                const values = Array.from(
+                  e.target.selectedOptions,
+                  (option) => option.value
+                );
+                setFilters((prev) => ({ ...prev, entityTypes: values }));
                 setPage(1);
               }}
               className="bg-gray-700 text-white rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500"
             >
-              <option value="" disabled>Select Asset Types</option>
-              {ENTITY_TYPES.map(type => (
-                <option key={type.value} value={type.value}>{type.label}</option>
+              <option value="" disabled>
+                Select Asset Types
+              </option>
+              {ENTITY_TYPES.map((type) => (
+                <option key={type.value} value={type.value}>
+                  {type.label}
+                </option>
               ))}
             </select>
 
@@ -186,15 +195,22 @@ const News = () => {
               multiple
               value={filters.industries}
               onChange={(e) => {
-                const values = Array.from(e.target.selectedOptions, option => option.value);
-                setFilters(prev => ({ ...prev, industries: values }));
+                const values = Array.from(
+                  e.target.selectedOptions,
+                  (option) => option.value
+                );
+                setFilters((prev) => ({ ...prev, industries: values }));
                 setPage(1);
               }}
               className="bg-gray-700 text-white rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500"
             >
-              <option value="" disabled>Select Industries</option>
-              {INDUSTRIES.map(industry => (
-                <option key={industry} value={industry}>{industry}</option>
+              <option value="" disabled>
+                Select Industries
+              </option>
+              {INDUSTRIES.map((industry) => (
+                <option key={industry} value={industry}>
+                  {industry}
+                </option>
               ))}
             </select>
 
@@ -202,7 +218,7 @@ const News = () => {
             <select
               value={filters.sentiment}
               onChange={(e) => {
-                setFilters(prev => ({ ...prev, sentiment: e.target.value }));
+                setFilters((prev) => ({ ...prev, sentiment: e.target.value }));
                 setPage(1);
               }}
               className="bg-gray-700 text-white rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500"
@@ -216,7 +232,7 @@ const News = () => {
             <select
               value={filters.timeRange}
               onChange={(e) => {
-                setFilters(prev => ({ ...prev, timeRange: e.target.value }));
+                setFilters((prev) => ({ ...prev, timeRange: e.target.value }));
                 setPage(1);
               }}
               className="bg-gray-700 text-white rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500"
@@ -256,7 +272,7 @@ const News = () => {
                       alt={article.title}
                       className="w-full h-48 object-cover"
                       onError={(e) => {
-                        e.target.src = '/api/placeholder/400/225';
+                        e.target.src = "/api/placeholder/400/225";
                       }}
                     />
                   </div>
@@ -267,7 +283,9 @@ const News = () => {
                     {article.entities?.map((entity, i) => (
                       <span
                         key={`${entity.symbol}-${i}`}
-                        className={`px-3 py-1 rounded-full text-sm font-medium ${getSentimentColor(entity.sentiment_score)}`}
+                        className={`px-3 py-1 rounded-full text-sm font-medium ${getSentimentColor(
+                          entity.sentiment_score
+                        )}`}
                       >
                         {entity.symbol} ({entity.sentiment_score?.toFixed(2)})
                       </span>
@@ -278,9 +296,7 @@ const News = () => {
                     {article.title}
                   </h2>
 
-                  <p className="text-gray-300 mb-4">
-                    {article.snippet}
-                  </p>
+                  <p className="text-gray-300 mb-4">{article.snippet}</p>
 
                   <div className="flex flex-wrap items-center justify-between mt-4">
                     <div className="flex items-center gap-4 text-sm text-gray-400">
@@ -309,7 +325,7 @@ const News = () => {
         {!loading && news.length > 0 && (
           <div className="mt-8 text-center">
             <button
-              onClick={() => setPage(p => p + 1)}
+              onClick={() => setPage((p) => p + 1)}
               className="px-6 py-3 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors duration-300"
             >
               Load More News
@@ -333,7 +349,8 @@ const News = () => {
 
         {!loading && news.length === 0 && (
           <div className="text-center text-gray-400 py-12">
-            No news articles found matching your criteria. Try adjusting your filters.
+            No news articles found matching your criteria. Try adjusting your
+            filters.
           </div>
         )}
       </div>
