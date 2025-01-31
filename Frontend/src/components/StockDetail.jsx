@@ -166,7 +166,7 @@ const StockDetail = () => {
     )?.quantity ?? 0;
 
     return (
-      <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 text-white p-8">
+      <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 text-white p-8 py-28">
         <div className="max-w-6xl mx-auto space-y-8">
           <div className="flex justify-between items-start">
             <div>
