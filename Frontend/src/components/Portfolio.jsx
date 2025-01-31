@@ -742,7 +742,7 @@ const Portfolio = () => {
         const token = localStorage.getItem("token");
 
         const response = await fetch(
-          `http://localhost:8000/api/dashboard/${userId}`,
+          `http://localhost:8000/api/portfolio/${userId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

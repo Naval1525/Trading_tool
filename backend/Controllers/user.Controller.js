@@ -353,7 +353,9 @@
 //   }
 // };
 import mongoose from 'mongoose';
+import yahooFinance from 'yahoo-finance2';
 import User from '../models/user.model.js';
+import axios from 'axios';
 export const buyStock = async (req, res) => {
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -739,36 +741,36 @@ export const sellStock = async (req, res) => {
 //   }
 // };
 
-// export const getDashboard = async (req, res) => {
-//   try {
-//     const { userId } = req.params;
-
-
-//     const user = await User.findById(userId)
-//       .select('stocks accountBalance activities name email')
-//       .slice('activities', -10);
-
-//     if (!user) {
-//       return res.status(404).json({ message: 'User not found' });
-//     }
-
-//     res.status(200).json({
-//       stocks: user.stocks.filter(stock => !stock.isSold),
-//       accountBalance: user.accountBalance,
-//       recentActivities: user.activities.reverse(),
-//       userInfo: {
-//         name: user.name,
-//         email: user.email
-//       }
-//     });
-//   } catch (error) {
-//     console.error('Dashboard error:', error);
-//     res.status(500).json({ message: 'Failed to fetch dashboard' });
-//   }
-// };
-import axios from 'axios';
-
 export const getDashboard = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+
+    const user = await User.findById(userId)
+      .select('stocks accountBalance activities name email')
+      .slice('activities', -10);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.status(200).json({
+      stocks: user.stocks.filter(stock => !stock.isSold),
+      accountBalance: user.accountBalance,
+      recentActivities: user.activities.reverse(),
+      userInfo: {
+        name: user.name,
+        email: user.email
+      }
+    });
+  } catch (error) {
+    console.error('Dashboard error:', error);
+    res.status(500).json({ message: 'Failed to fetch dashboard' });
+  }
+};
+
+
+export const portfolio = async (req, res) => {
   try {
     const { userId } = req.params;
 
@@ -781,16 +783,25 @@ export const getDashboard = async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Get current stock prices
+    // Get current stock prices from Yahoo Finance
     const activeStocks = user.stocks.filter(stock => !stock.isSold);
     const symbols = activeStocks.map(stock => stock.symbol);
 
-    // Fetch current prices (replace with your actual stock API)
+    // Fetch current prices and additional data from Yahoo Finance
     const stockPrices = await Promise.all(
       symbols.map(async (symbol) => {
         try {
-          const response = await axios.get(`YOUR_STOCK_API_ENDPOINT/${symbol}`);
-          return { symbol, currentPrice: response.data.price };
+          const quote = await yahooFinance.quote(symbol);
+          return {
+            symbol,
+            currentPrice: quote.regularMarketPrice,
+            previousClose: quote.regularMarketPreviousClose,
+            dayHigh: quote.regularMarketDayHigh,
+            dayLow: quote.regularMarketDayLow,
+            volume: quote.regularMarketVolume,
+            marketCap: quote.marketCap,
+            sector: quote.sector || 'Unknown'
+          };
         } catch (error) {
           console.error(`Failed to fetch price for ${symbol}:`, error);
           return { symbol, currentPrice: null };
@@ -798,20 +809,20 @@ export const getDashboard = async (req, res) => {
       })
     );
 
-    // Calculate portfolio metrics
+    // Calculate portfolio metrics with enhanced data
     const portfolioMetrics = calculatePortfolioMetrics(activeStocks, stockPrices);
 
     // Calculate historical performance
-    const historicalPerformance = calculateHistoricalPerformance(user.activities);
+    const historicalPerformance = await calculateHistoricalPerformance(user.activities, symbols);
 
-    // Generate trading insights
-    const tradingInsights = generateTradingInsights(user.activities, portfolioMetrics);
+    // Generate trading insights with enhanced market data
+    const tradingInsights = generateTradingInsights(user.activities, portfolioMetrics, stockPrices);
 
-    // Calculate risk metrics
-    const riskMetrics = calculateRiskMetrics(activeStocks, stockPrices);
+    // Calculate risk metrics with real market data
+    const riskMetrics = await calculateRiskMetrics(activeStocks, stockPrices);
 
-    // Get sector diversification
-    const sectorDiversification = await calculateSectorDiversification(activeStocks);
+    // Get sector diversification using Yahoo Finance data
+    const sectorDiversification = calculateSectorDiversification(activeStocks, stockPrices);
 
     res.status(200).json({
       userInfo: {
@@ -833,19 +844,9 @@ export const getDashboard = async (req, res) => {
         bestPerformer: portfolioMetrics.bestPerformer,
         worstPerformer: portfolioMetrics.worstPerformer,
       },
-      riskAnalysis: {
-        portfolioBeta: riskMetrics.portfolioBeta,
-        volatility: riskMetrics.volatility,
-        sharpeRatio: riskMetrics.sharpeRatio,
-        diversificationScore: riskMetrics.diversificationScore,
-      },
+      riskAnalysis: riskMetrics,
       sectorDiversification,
-      historicalPerformance: {
-        daily: historicalPerformance.daily,
-        weekly: historicalPerformance.weekly,
-        monthly: historicalPerformance.monthly,
-        yearly: historicalPerformance.yearly,
-      },
+      historicalPerformance,
       tradingInsights,
       recentActivities: user.activities.reverse(),
     });
@@ -855,31 +856,42 @@ export const getDashboard = async (req, res) => {
   }
 };
 
-const calculatePortfolioMetrics = (stocks, currentPrices) => {
+const calculatePortfolioMetrics = (stocks, stockPrices) => {
   let totalValue = 0;
   let totalCost = 0;
   let dailyChange = 0;
 
   const stocksWithMetrics = stocks.map(stock => {
-    const currentPrice = currentPrices.find(p => p.symbol === stock.symbol)?.currentPrice || stock.buyPrice;
+    const priceData = stockPrices.find(p => p.symbol === stock.symbol);
+    const currentPrice = priceData?.currentPrice || stock.buyPrice;
+    const previousClose = priceData?.previousClose || currentPrice;
+
     const value = currentPrice * stock.quantity;
     const cost = stock.buyPrice * stock.quantity;
     const unrealizedGain = value - cost;
     const unrealizedGainPercentage = (unrealizedGain / cost) * 100;
+    const dayChange = (currentPrice - previousClose) * stock.quantity;
 
     totalValue += value;
     totalCost += cost;
+    dailyChange += dayChange;
 
     return {
       ...stock.toObject(),
       currentPrice,
+      previousClose,
       value,
       unrealizedGain,
       unrealizedGainPercentage,
+      dayChange,
+      dayChangePercentage: (dayChange / (previousClose * stock.quantity)) * 100,
+      dayHigh: priceData?.dayHigh,
+      dayLow: priceData?.dayLow,
+      volume: priceData?.volume,
+      marketCap: priceData?.marketCap
     };
   });
 
-  // Sort stocks by unrealized gain percentage to find best and worst performers
   const sortedStocks = [...stocksWithMetrics].sort((a, b) =>
     b.unrealizedGainPercentage - a.unrealizedGainPercentage
   );
@@ -896,15 +908,31 @@ const calculatePortfolioMetrics = (stocks, currentPrices) => {
   };
 };
 
-const calculateHistoricalPerformance = (activities) => {
+const calculateHistoricalPerformance = async (activities, symbols) => {
   const now = new Date();
   const oneDay = 24 * 60 * 60 * 1000;
   const oneWeek = 7 * oneDay;
   const oneMonth = 30 * oneDay;
   const oneYear = 365 * oneDay;
 
-  // Filter activities by timeframe and calculate performance
-  const getPerformanceForPeriod = (activities, startTime) => {
+  // Fetch historical data from Yahoo Finance
+  const historicalData = await Promise.all(
+    symbols.map(async (symbol) => {
+      try {
+        const endDate = new Date();
+        const startDate = new Date(endDate - oneYear);
+
+        const queryOptions = { period1: startDate, period2: endDate };
+        const result = await yahooFinance.historical(symbol, queryOptions);
+        return { symbol, data: result };
+      } catch (error) {
+        console.error(`Failed to fetch historical data for ${symbol}:`, error);
+        return { symbol, data: [] };
+      }
+    })
+  );
+
+  const getPerformanceForPeriod = (activities, startTime, historicalData) => {
     const periodActivities = activities.filter(a =>
       new Date(a.timestamp) >= startTime
     );
@@ -917,26 +945,42 @@ const calculateHistoricalPerformance = (activities) => {
       totalVolume: periodActivities.reduce((sum, a) =>
         sum + Math.abs(a.balanceChange), 0
       ),
+      marketPerformance: calculateMarketPerformance(historicalData, startTime)
     };
   };
 
   return {
-    daily: getPerformanceForPeriod(activities, new Date(now - oneDay)),
-    weekly: getPerformanceForPeriod(activities, new Date(now - oneWeek)),
-    monthly: getPerformanceForPeriod(activities, new Date(now - oneMonth)),
-    yearly: getPerformanceForPeriod(activities, new Date(now - oneYear)),
+    daily: getPerformanceForPeriod(activities, new Date(now - oneDay), historicalData),
+    weekly: getPerformanceForPeriod(activities, new Date(now - oneWeek), historicalData),
+    monthly: getPerformanceForPeriod(activities, new Date(now - oneMonth), historicalData),
+    yearly: getPerformanceForPeriod(activities, new Date(now - oneYear), historicalData),
   };
 };
 
-const generateTradingInsights = (activities, portfolioMetrics) => {
+const calculateMarketPerformance = (historicalData, startTime) => {
+  const relevantData = historicalData.map(stock => ({
+    symbol: stock.symbol,
+    performance: stock.data
+      .filter(d => new Date(d.date) >= startTime)
+      .map(d => d.close)
+  }));
+
+  return relevantData.map(stock => ({
+    symbol: stock.symbol,
+    change: stock.performance.length >= 2
+      ? ((stock.performance[stock.performance.length - 1] - stock.performance[0]) / stock.performance[0]) * 100
+      : 0
+  }));
+};
+
+const generateTradingInsights = (activities, portfolioMetrics, stockPrices) => {
   const insights = [];
 
-  // Analyze trading patterns
+  // Enhanced analysis with market data
   const trades = activities.filter(a => ['BUY', 'SELL'].includes(a.type));
   const profitableTrades = trades.filter(t => t.type === 'SELL' && t.balanceChange > 0);
   const winRate = (profitableTrades.length / trades.length) * 100;
 
-  // Generate insights based on analysis
   if (winRate < 50) {
     insights.push('Consider reviewing your trading strategy as win rate is below 50%');
   }
@@ -945,33 +989,62 @@ const generateTradingInsights = (activities, portfolioMetrics) => {
     insights.push('Portfolio diversification opportunity: Consider adding more stocks');
   }
 
-  const highConcentration = portfolioMetrics.stocksWithMetrics.find(s =>
-    (s.value / portfolioMetrics.totalValue) > 0.3
-  );
-  if (highConcentration) {
-    insights.push(`High concentration risk in ${highConcentration.symbol}`);
-  }
+  // Check for high concentration and market cap distribution
+  portfolioMetrics.stocksWithMetrics.forEach(stock => {
+    const concentration = stock.value / portfolioMetrics.totalValue;
+    if (concentration > 0.3) {
+      insights.push(`High concentration risk (${(concentration * 100).toFixed(1)}%) in ${stock.symbol}`);
+    }
+
+    const priceData = stockPrices.find(p => p.symbol === stock.symbol);
+    if (priceData?.volume && priceData.volume < 100000) {
+      insights.push(`Low trading volume alert for ${stock.symbol}`);
+    }
+  });
 
   return insights;
 };
 
-const calculateRiskMetrics = (stocks, currentPrices) => {
-  // Calculate basic risk metrics
+const calculateRiskMetrics = async (stocks, stockPrices) => {
+  // Fetch market index (S&P 500) data for beta calculation
+  const spyData = await yahooFinance.historical('^GSPC', {
+    period1: new Date(Date.now() - 365 * 24 * 60 * 60 * 1000),
+    period2: new Date()
+  });
+
   const returns = stocks.map(stock => {
-    const currentPrice = currentPrices.find(p => p.symbol === stock.symbol)?.currentPrice;
-    if (!currentPrice) return 0;
-    return ((currentPrice - stock.buyPrice) / stock.buyPrice) * 100;
+    const priceData = stockPrices.find(p => p.symbol === stock.symbol);
+    return priceData?.currentPrice
+      ? ((priceData.currentPrice - stock.buyPrice) / stock.buyPrice) * 100
+      : 0;
   });
 
   const volatility = calculateStandardDeviation(returns);
-  const diversificationScore = calculateDiversificationScore(stocks);
+  const diversificationScore = calculateDiversificationScore(stocks, stockPrices);
+  const portfolioBeta = calculatePortfolioBeta(stocks, stockPrices, spyData);
 
   return {
     volatility,
     diversificationScore,
-    portfolioBeta: 1.0, // This should be calculated using market data
+    portfolioBeta,
     sharpeRatio: calculateSharpeRatio(returns, 2.0), // Assuming 2% risk-free rate
+    valueAtRisk: calculateValueAtRisk(returns, portfolioBeta)
   };
+};
+
+const calculatePortfolioBeta = (stocks, stockPrices, marketData) => {
+  // Implement beta calculation using market data
+  // Beta = Covariance(Stock Returns, Market Returns) / Variance(Market Returns)
+  return 1.0; // Placeholder - implement actual calculation
+};
+
+const calculateValueAtRisk = (returns, beta) => {
+  // Implement Value at Risk calculation
+  // VaR = Portfolio Value * (Z-score * Standard Deviation of Returns)
+  const confidence = 0.95; // 95% confidence level
+  const zScore = 1.645; // Z-score for 95% confidence
+  const stdDev = calculateStandardDeviation(returns);
+  return zScore * stdDev * Math.sqrt(beta);
 };
 
 const calculateStandardDeviation = (values) => {
@@ -981,9 +1054,17 @@ const calculateStandardDeviation = (values) => {
   return Math.sqrt(variance);
 };
 
-const calculateDiversificationScore = (stocks) => {
-  const totalValue = stocks.reduce((sum, stock) => sum + (stock.buyPrice * stock.quantity), 0);
-  const weights = stocks.map(stock => (stock.buyPrice * stock.quantity) / totalValue);
+const calculateDiversificationScore = (stocks, stockPrices) => {
+  const totalValue = stocks.reduce((sum, stock) => {
+    const priceData = stockPrices.find(p => p.symbol === stock.symbol);
+    return sum + (priceData?.currentPrice || stock.buyPrice) * stock.quantity;
+  }, 0);
+
+  const weights = stocks.map(stock => {
+    const priceData = stockPrices.find(p => p.symbol === stock.symbol);
+    return ((priceData?.currentPrice || stock.buyPrice) * stock.quantity) / totalValue;
+  });
+
   return 1 - Math.sqrt(weights.reduce((sum, weight) => sum + Math.pow(weight, 2), 0));
 };
 
@@ -994,19 +1075,12 @@ const calculateSharpeRatio = (returns, riskFreeRate) => {
   return stdDev === 0 ? 0 : meanExcessReturn / stdDev;
 };
 
-const calculateSectorDiversification = async (stocks) => {
-  // This would typically involve calling an external API to get sector information
-  // For now, return a mock implementation
-  const sectors = {
-    'AAPL': 'Technology',
-    'MSFT': 'Technology',
-    'JPM': 'Financial',
-    // Add more mappings as needed
-  };
-
+const calculateSectorDiversification = (stocks, stockPrices) => {
   const sectorAllocations = stocks.reduce((acc, stock) => {
-    const sector = sectors[stock.symbol] || 'Unknown';
-    acc[sector] = (acc[sector] || 0) + (stock.buyPrice * stock.quantity);
+    const priceData = stockPrices.find(p => p.symbol === stock.symbol);
+    const sector = priceData?.sector || 'Unknown';
+    const value = (priceData?.currentPrice || stock.buyPrice) * stock.quantity;
+    acc[sector] = (acc[sector] || 0) + value;
     return acc;
   }, {});
 
