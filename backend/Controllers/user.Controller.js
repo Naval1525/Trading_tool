@@ -354,13 +354,12 @@
 // };
 import mongoose from 'mongoose';
 import User from '../models/user.model.js';
-
 export const buyStock = async (req, res) => {
   const session = await mongoose.startSession();
   session.startTransaction();
 
   try {
-    const userId = req.user.userId;
+    const userId = req.user?.userId || req.body.userId;
     const { symbol, quantity, price } = req.body;
 
     if (!symbol || !quantity || !price || quantity <= 0 || price <= 0) {
@@ -369,6 +368,15 @@ export const buyStock = async (req, res) => {
 
     const totalCost = quantity * price;
 
+    // First, get the current user to calculate the new balance
+    const currentUser = await User.findById(userId).session(session);
+    if (!currentUser || currentUser.accountBalance < totalCost) {
+      throw new Error('Insufficient balance or user not found');
+    }
+
+    const newBalance = currentUser.accountBalance - totalCost;
+
+    // Update user's balance and add activity
     const user = await User.findOneAndUpdate(
       {
         _id: userId,
@@ -381,7 +389,7 @@ export const buyStock = async (req, res) => {
             type: 'BUY',
             stock: { symbol, price, quantity },
             balanceChange: -totalCost,
-            balanceAfter: { $subtract: ['$accountBalance', totalCost] },
+            balanceAfter: newBalance,
             description: `Bought ${quantity} shares of ${symbol} at $${price}`
           }
         }
@@ -397,31 +405,36 @@ export const buyStock = async (req, res) => {
       throw new Error('Insufficient balance or user not found');
     }
 
-    const updateResult = await User.findOneAndUpdate(
-      {
-        _id: userId,
-        'stocks.symbol': symbol,
-        'stocks.isSold': false
-      },
-      {
-        $inc: { 'stocks.$.quantity': quantity },
-        $set: {
-          'stocks.$.buyPrice': {
-            $divide: [
-              { $add: [
-                { $multiply: ['$stocks.$.buyPrice', '$stocks.$.quantity'] },
-                { $multiply: [price, quantity] }
-              ]},
-              { $add: ['$stocks.$.quantity', quantity] }
-            ]
-          },
-          'stocks.$.lastUpdated': new Date()
-        }
-      },
-      { session, new: true }
+    // Find existing stock position
+    const existingStock = currentUser.stocks.find(
+      stock => stock.symbol === symbol && !stock.isSold
     );
 
-    if (!updateResult) {
+    if (existingStock) {
+      // Calculate new average buy price
+      const totalCurrentValue = existingStock.buyPrice * existingStock.quantity;
+      const totalNewValue = price * quantity;
+      const totalQuantity = existingStock.quantity + quantity;
+      const newAveragePrice = (totalCurrentValue + totalNewValue) / totalQuantity;
+
+      // Update existing stock position
+      await User.findOneAndUpdate(
+        {
+          _id: userId,
+          'stocks.symbol': symbol,
+          'stocks.isSold': false
+        },
+        {
+          $inc: { 'stocks.$.quantity': quantity },
+          $set: {
+            'stocks.$.buyPrice': newAveragePrice,
+            'stocks.$.lastUpdated': new Date()
+          }
+        },
+        { session }
+      );
+    } else {
+      // Add new stock position
       await User.findByIdAndUpdate(
         userId,
         {
@@ -455,12 +468,111 @@ export const buyStock = async (req, res) => {
   }
 };
 
+// export const buyStock = async (req, res) => {
+//   const session = await mongoose.startSession();
+//   session.startTransaction();
+
+//   try {
+//     const userId = req.user?.userId || req.body.userId;
+//     const { symbol, quantity, price } = req.body;
+
+//     if (!symbol || !quantity || !price || quantity <= 0 || price <= 0) {
+//       return res.status(400).json({ message: 'Invalid input parameters' });
+//     }
+
+//     const totalCost = quantity * price;
+
+//     const user = await User.findOneAndUpdate(
+//       {
+//         _id: userId,
+//         accountBalance: { $gte: totalCost }
+//       },
+//       {
+//         $inc: { accountBalance: -totalCost },
+//         $push: {
+//           activities: {
+//             type: 'BUY',
+//             stock: { symbol, price, quantity },
+//             balanceChange: -totalCost,
+//             balanceAfter: { $subtract: ['$accountBalance', totalCost] },
+//             description: `Bought ${quantity} shares of ${symbol} at $${price}`
+//           }
+//         }
+//       },
+//       {
+//         session,
+//         new: true,
+//         runValidators: true
+//       }
+//     );
+
+//     if (!user) {
+//       throw new Error('Insufficient balance or user not found');
+//     }
+
+//     const updateResult = await User.findOneAndUpdate(
+//       {
+//         _id: userId,
+//         'stocks.symbol': symbol,
+//         'stocks.isSold': false
+//       },
+//       {
+//         $inc: { 'stocks.$.quantity': quantity },
+//         $set: {
+//           'stocks.$.buyPrice': {
+//             $divide: [
+//               { $add: [
+//                 { $multiply: ['$stocks.$.buyPrice', '$stocks.$.quantity'] },
+//                 { $multiply: [price, quantity] }
+//               ]},
+//               { $add: ['$stocks.$.quantity', quantity] }
+//             ]
+//           },
+//           'stocks.$.lastUpdated': new Date()
+//         }
+//       },
+//       { session, new: true }
+//     );
+
+//     if (!updateResult) {
+//       await User.findByIdAndUpdate(
+//         userId,
+//         {
+//           $push: {
+//             stocks: {
+//               symbol,
+//               buyPrice: price,
+//               quantity,
+//               lastUpdated: new Date()
+//             }
+//           }
+//         },
+//         { session }
+//       );
+//     }
+
+//     await session.commitTransaction();
+
+//     res.status(200).json({
+//       message: 'Stock purchased successfully',
+//       accountBalance: user.accountBalance,
+//       latestActivity: user.activities[user.activities.length - 1]
+//     });
+//   } catch (error) {
+//     await session.abortTransaction();
+//     console.error('Buy stock error:', error);
+//     res.status(error.message.includes('Insufficient') ? 400 : 500)
+//       .json({ message: error.message || 'Purchase failed' });
+//   } finally {
+//     session.endSession();
+//   }
+// };
 export const sellStock = async (req, res) => {
   const session = await mongoose.startSession();
   session.startTransaction();
 
   try {
-    const userId = req.user.userId;
+    const userId = req.user?.userId || req.body.userId;
     const { symbol, quantity, price } = req.body;
 
     if (!symbol || !quantity || !price || quantity <= 0 || price <= 0) {
@@ -469,6 +581,26 @@ export const sellStock = async (req, res) => {
 
     const totalEarnings = quantity * price;
 
+    // First, get the current user to check stock availability and calculate new balance
+    const currentUser = await User.findById(userId).session(session);
+    if (!currentUser) {
+      throw new Error('User not found');
+    }
+
+    // Find the stock position
+    const stockPosition = currentUser.stocks.find(
+      stock => stock.symbol === symbol && !stock.isSold
+    );
+
+    if (!stockPosition || stockPosition.quantity < quantity) {
+      throw new Error('Insufficient stock quantity');
+    }
+
+    const newBalance = currentUser.accountBalance + totalEarnings;
+    const remainingQuantity = stockPosition.quantity - quantity;
+    const shouldMarkAsSold = remainingQuantity === 0;
+
+    // Update user's stock position, balance, and add activity
     const user = await User.findOneAndUpdate(
       {
         _id: userId,
@@ -486,7 +618,7 @@ export const sellStock = async (req, res) => {
           'stocks.$.quantity': -quantity
         },
         $set: {
-          'stocks.$.isSold': { $cond: [{ $eq: ['$stocks.$.quantity', quantity] }, true, false] },
+          'stocks.$.isSold': shouldMarkAsSold,
           'stocks.$.lastUpdated': new Date()
         },
         $push: {
@@ -494,7 +626,7 @@ export const sellStock = async (req, res) => {
             type: 'SELL',
             stock: { symbol, price, quantity },
             balanceChange: totalEarnings,
-            balanceAfter: { $add: ['$accountBalance', totalEarnings] },
+            balanceAfter: newBalance,
             description: `Sold ${quantity} shares of ${symbol} at $${price}`
           }
         }
@@ -507,15 +639,24 @@ export const sellStock = async (req, res) => {
     );
 
     if (!user) {
-      throw new Error('Insufficient stock quantity or user not found');
+      throw new Error('Failed to update user data');
     }
 
     await session.commitTransaction();
 
+    // Prepare response with profit/loss calculation
+    const profitLoss = (price - stockPosition.buyPrice) * quantity;
+    const profitLossPercentage = ((price - stockPosition.buyPrice) / stockPosition.buyPrice) * 100;
+
     res.status(200).json({
       message: 'Stock sold successfully',
       accountBalance: user.accountBalance,
-      latestActivity: user.activities[user.activities.length - 1]
+      latestActivity: user.activities[user.activities.length - 1],
+      tradeSummary: {
+        profitLoss: Number(profitLoss.toFixed(2)),
+        profitLossPercentage: Number(profitLossPercentage.toFixed(2)),
+        remainingShares: remainingQuantity
+      }
     });
   } catch (error) {
     await session.abortTransaction();
@@ -526,6 +667,77 @@ export const sellStock = async (req, res) => {
     session.endSession();
   }
 };
+// export const sellStock = async (req, res) => {
+//   const session = await mongoose.startSession();
+//   session.startTransaction();
+
+//   try {
+//     const userId = req.user.userId;
+//     const { symbol, quantity, price } = req.body;
+
+//     if (!symbol || !quantity || !price || quantity <= 0 || price <= 0) {
+//       return res.status(400).json({ message: 'Invalid input parameters' });
+//     }
+
+//     const totalEarnings = quantity * price;
+
+//     const user = await User.findOneAndUpdate(
+//       {
+//         _id: userId,
+//         'stocks': {
+//           $elemMatch: {
+//             symbol,
+//             isSold: false,
+//             quantity: { $gte: quantity }
+//           }
+//         }
+//       },
+//       {
+//         $inc: {
+//           accountBalance: totalEarnings,
+//           'stocks.$.quantity': -quantity
+//         },
+//         $set: {
+//           'stocks.$.isSold': { $cond: [{ $eq: ['$stocks.$.quantity', quantity] }, true, false] },
+//           'stocks.$.lastUpdated': new Date()
+//         },
+//         $push: {
+//           activities: {
+//             type: 'SELL',
+//             stock: { symbol, price, quantity },
+//             balanceChange: totalEarnings,
+//             balanceAfter: { $add: ['$accountBalance', totalEarnings] },
+//             description: `Sold ${quantity} shares of ${symbol} at $${price}`
+//           }
+//         }
+//       },
+//       {
+//         session,
+//         new: true,
+//         runValidators: true
+//       }
+//     );
+
+//     if (!user) {
+//       throw new Error('Insufficient stock quantity or user not found');
+//     }
+
+//     await session.commitTransaction();
+
+//     res.status(200).json({
+//       message: 'Stock sold successfully',
+//       accountBalance: user.accountBalance,
+//       latestActivity: user.activities[user.activities.length - 1]
+//     });
+//   } catch (error) {
+//     await session.abortTransaction();
+//     console.error('Sell stock error:', error);
+//     res.status(error.message.includes('Insufficient') ? 400 : 500)
+//       .json({ message: error.message || 'Sale failed' });
+//   } finally {
+//     session.endSession();
+//   }
+// };
 
 export const getDashboard = async (req, res) => {
   try {

@@ -8,6 +8,7 @@ import Portfolio from "./components/Portfolio";
 import SignUp from "./components/SignUp";
 import Login from "./components/Login";
 import Home from "./components/Home";
+import StockDetail from "./components/StockDetail";
 
 const App = () => {
   return (
@@ -21,6 +22,7 @@ const App = () => {
         <Route path="/signup" element={<SignUp />} />
         <Route path="/login" element={<Login />} />
         <Route path="/portfolio/:userId" element={<Portfolio />} />
+        <Route path="/stock/:symbol" element={<StockDetail />} />
       </Routes>
     </div>
   );
