@@ -1,3 +1,4 @@
+import FeaturesSection from "./FeaturesSection";
 import Footer from "./Footer";
 import Hero from "./Hero";
 import Pricing from "./Pricing";
@@ -7,7 +8,8 @@ function Home() {
   return (
     <div>
       <Hero/>
-      <Pricing/>
+      <FeaturesSection/>
+      <Pricing />
       <SubscriptionSection/>
       <Footer/>
     </div>

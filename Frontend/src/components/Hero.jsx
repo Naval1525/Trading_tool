@@ -69,6 +69,7 @@ const TradingDisclaimer = ({ onAccept }) => {
               <li>• Not a real trading platform</li>
               <li>• No investment advice</li>
               <li>• Educational purposes only</li>
+              <li>• Dummy Coins cannot be converted into real money</li>
             </ul>
           </Section>
         </div>
