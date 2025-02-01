@@ -743,16 +743,18 @@ const StockDetail = () => {
             </div>
 
             <div>
-              <label className="block text-sm text-gray-400 mb-1">
+              <label className="block text-sm text-gray-400 mb-5">
                 Quantity
               </label>
               <input
-                type="number"
-                min="1"
+                type="tel"
+                min="0"
                 value={quantity}
-                onChange={(e) =>
-                  setQuantity(Math.max(1, parseInt(e.target.value) || 1))
-                }
+                onChange={(e) => {
+                  const value =
+                    e.target.value === "" ? 0 : parseInt(e.target.value);
+                  setQuantity(isNaN(value) ? 0 : value);
+                }}
                 className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500"
               />
             </div>
