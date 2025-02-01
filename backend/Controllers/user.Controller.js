@@ -354,7 +354,7 @@
 // };
 import mongoose from 'mongoose';
 import yahooFinance from 'yahoo-finance2';
-import User from '../models/user.model.js';
+import User from "../Models/user.model.js";
 import axios from 'axios';
 export const buyStock = async (req, res) => {
   const session = await mongoose.startSession();
