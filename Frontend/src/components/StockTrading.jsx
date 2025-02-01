@@ -652,7 +652,7 @@ const StockTrading = () => {
           <h2 className="text-xl font-semibold">Account Balance</h2>
         </div>
         <p className="text-3xl font-bold">
-          ${dashboardData?.accountBalance?.toFixed(2) || '0.00'}
+          ₹{dashboardData?.accountBalance?.toFixed(2) || '0.00'}
         </p>
       </div>
 
@@ -679,7 +679,7 @@ const StockTrading = () => {
                 <option value="">Select a stock</option>
                 {stockOptions.map(stock => (
                   <option key={stock.symbol} value={stock.symbol}>
-                    {stock.name} ({stock.symbol}) - ${stock.price}
+                    {stock.name} ({stock.symbol}) - ₹{stock.price}
                   </option>
                 ))}
               </select>
@@ -699,7 +699,7 @@ const StockTrading = () => {
 
             {tradeData.symbol && tradeData.quantity && (
               <div className="text-sm text-gray-600">
-                Total Value: ${(Number(tradeData.quantity) * Number(tradeData.price)).toFixed(2)}
+                Total Value: ₹{(Number(tradeData.quantity) * Number(tradeData.price)).toFixed(2)}
               </div>
             )}
 
@@ -746,7 +746,7 @@ const StockTrading = () => {
                       <td className="text-right p-2">{stock.quantity}</td>
                       <td className="text-right p-2">${stock?.buyPrice?.toFixed(2) || '0.00'}</td>
                       <td className="text-right p-2">
-                        ${((stock?.buyPrice || 0) * (stock?.quantity || 0)).toFixed(2)}
+                      ₹{((stock?.buyPrice || 0) * (stock?.quantity || 0)).toFixed(2)}
                       </td>
                     </tr>
                   ))}
@@ -774,7 +774,7 @@ const StockTrading = () => {
                 <div>
                   <p className="font-medium">{activity?.description}</p>
                   <p className="text-sm text-gray-500">
-                    Balance change: ${activity?.balanceChange?.toFixed(2) || '0.00'}
+                    Balance change: ₹{activity?.balanceChange?.toFixed(2) || '0.00'}
                   </p>
                 </div>
               </div>

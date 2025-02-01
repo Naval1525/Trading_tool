@@ -347,7 +347,7 @@ const CustomTooltip = ({ active, payload, label }) => {
       <div className="bg-gray-800 border border-gray-700 p-3 rounded-lg shadow-lg">
         <p className="text-gray-300 mb-1">{label}</p>
         <p className="text-emerald-400 font-mono">
-          ${payload[0].value.toFixed(2)}
+        ₹{payload[0].value.toFixed(2)}
         </p>
       </div>
     );
@@ -579,7 +579,7 @@ const StockDetail = () => {
           </div>
           <div className="text-right">
             <div className="text-3xl font-mono font-bold">
-              ${stockData?.price?.toFixed(2) ?? '0.00'}
+            ₹{stockData?.price?.toFixed(2) ?? '0.00'}
             </div>
             <div className={`flex items-center justify-end ${
               isPositiveChange ? 'text-emerald-400' : 'text-rose-400'
@@ -726,12 +726,12 @@ const StockDetail = () => {
                 Total {tradeType === 'buy' ? 'Cost' : 'Proceeds'}
               </label>
               <div className="text-2xl font-mono font-bold">
-                ${totalCost.toFixed(2)}
+              ₹{totalCost.toFixed(2)}
               </div>
             </div>
 
             <div className="text-sm text-gray-400">
-              Available Balance: ${userBalance.toFixed(2)}
+              Available Balance: ₹{userBalance.toFixed(2)}
             </div>
 
             <button
@@ -763,7 +763,7 @@ const StockDetail = () => {
               <div className="flex justify-between">
                 <span className="text-gray-400">Market Cap</span>
                 <span className="font-mono">
-                  ${((stockData?.marketCap ?? 0) / 1e9).toFixed(2)}B
+                ₹{((stockData?.marketCap ?? 0) / 1e9).toFixed(2)}B
                 </span>
               </div>
               <div className="flex justify-between">
@@ -773,25 +773,25 @@ const StockDetail = () => {
               <div className="flex justify-between">
                 <span className="text-gray-400">Day High</span>
                 <span className="font-mono">
-                  ${stockData?.dayHigh?.toFixed(2) ?? 'N/A'}
+                ₹{stockData?.dayHigh?.toFixed(2) ?? 'N/A'}
                 </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-400">Day Low</span>
                 <span className="font-mono">
-                  ${stockData?.dayLow?.toFixed(2) ?? 'N/A'}
+                ₹{stockData?.dayLow?.toFixed(2) ?? 'N/A'}
                 </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-400">Open</span>
                 <span className="font-mono">
-                  ${stockData?.open?.toFixed(2) ?? 'N/A'}
+                ₹{stockData?.open?.toFixed(2) ?? 'N/A'}
                 </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-400">Previous Close</span>
                 <span className="font-mono">
-                  ${stockData?.previousClose?.toFixed(2) ?? 'N/A'}
+                ₹{stockData?.previousClose?.toFixed(2) ?? 'N/A'}
                 </span>
               </div>
             </div>
@@ -812,7 +812,7 @@ const StockDetail = () => {
                           <div className="flex justify-between">
                             <span className="text-gray-400">Price</span>
                             <span className="font-mono text-emerald-400">
-                              ${orderBook.bid.price?.toFixed(2)}
+                            ₹{orderBook.bid.price?.toFixed(2)}
                             </span>
                           </div>
                           <div className="flex justify-between">
@@ -835,7 +835,7 @@ const StockDetail = () => {
                           <div className="flex justify-between">
                             <span className="text-gray-400">Price</span>
                             <span className="font-mono text-rose-400">
-                              ${orderBook.ask.price?.toFixed(2)}
+                            ₹{orderBook.ask.price?.toFixed(2)}
                             </span>
                           </div>
                           <div className="flex justify-between">
@@ -854,7 +854,7 @@ const StockDetail = () => {
                   <div className="flex justify-between">
                     <span className="text-gray-400">Last Price</span>
                     <span className="font-mono">
-                      ${orderBook.lastPrice?.toFixed(2)}
+                    ₹{orderBook.lastPrice?.toFixed(2)}
                     </span>
                   </div>
                   <div className="flex justify-between">
