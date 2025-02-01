@@ -325,20 +325,32 @@
 // };
 
 // export default StockDetail;
-import React, { useState, useEffect, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, BarChart, Bar } from 'recharts';
-import { TrendingUp, TrendingDown, ArrowLeft } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  AreaChart,
+  Area,
+  BarChart,
+  Bar,
+} from "recharts";
+import { TrendingUp, TrendingDown, ArrowLeft } from "lucide-react";
 
-const BASE_URL = 'http://localhost:8000/api';
+const BASE_URL = "http://localhost:8000/api";
 
 const TIME_RANGES = [
-  { label: '1D', value: '1d' },
-  { label: '5D', value: '5d' },
-  { label: '1M', value: '1mo' },
-  { label: '3M', value: '3mo' },
-  { label: '6M', value: '6mo' },
-  { label: '1Y', value: '1y' }
+  { label: "1D", value: "1d" },
+  { label: "5D", value: "5d" },
+  { label: "1M", value: "1mo" },
+  { label: "3M", value: "3mo" },
+  { label: "6M", value: "6mo" },
+  { label: "1Y", value: "1y" },
 ];
 
 const CustomTooltip = ({ active, payload, label }) => {
@@ -347,7 +359,7 @@ const CustomTooltip = ({ active, payload, label }) => {
       <div className="bg-gray-800 border border-gray-700 p-3 rounded-lg shadow-lg">
         <p className="text-gray-300 mb-1">{label}</p>
         <p className="text-emerald-400 font-mono">
-        ₹{payload[0].value.toFixed(2)}
+          ₹{payload[0].value.toFixed(2)}
         </p>
       </div>
     );
@@ -364,7 +376,7 @@ const StockDetail = () => {
   const [userStocks, setUserStocks] = useState([]);
   const [userBalance, setUserBalance] = useState(0);
   const [quantity, setQuantity] = useState(1);
-  const [tradeType, setTradeType] = useState('buy');
+  const [tradeType, setTradeType] = useState("buy");
   const [orderStatus, setOrderStatus] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -372,48 +384,58 @@ const StockDetail = () => {
   // New state for historical data and order book
   const [historicalData, setHistoricalData] = useState([]);
   const [orderBook, setOrderBook] = useState(null);
-  const [selectedTimeRange, setSelectedTimeRange] = useState('1mo');
+  const [selectedTimeRange, setSelectedTimeRange] = useState("1mo");
   const [chartLoading, setChartLoading] = useState(true);
 
   // Auth check
   const checkAuth = useCallback(() => {
-    const token = localStorage.getItem('token');
-    const userId = localStorage.getItem('userId');
+    const token = localStorage.getItem("token");
+    const userId = localStorage.getItem("userId");
 
     if (!token || !userId) {
-      navigate('/login');
+      navigate("/login");
       return false;
     }
     return { token, userId };
   }, [navigate]);
 
   // Dashboard fetch
-  const fetchDashboard = useCallback(async (token, userId) => {
-    try {
-      const response = await fetch(`${BASE_URL}/dashboard/${userId}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
+  const fetchDashboard = useCallback(
+    async (token, userId) => {
+      try {
+        const response = await fetch(`${BASE_URL}/dashboard/${userId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
 
-      if (!response.ok) {
-        if (response.status === 401) {
-          localStorage.removeItem('token');
-          localStorage.removeItem('userId');
-          navigate('/login');
-          return null;
+        if (!response.ok) {
+          if (response.status === 401) {
+            localStorage.removeItem("token");
+            localStorage.removeItem("userId");
+            navigate("/login");
+            return null;
+          }
+          throw new Error("Failed to fetch dashboard data");
         }
-        throw new Error('Failed to fetch dashboard data');
+
+        const data = await response.json();
+        return data;
+      } catch (error) {
+        console.error("Dashboard fetch error:", error);
+        return null;
       }
+    },
+    [navigate]
+  );
 
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      console.error('Dashboard fetch error:', error);
-      return null;
-    }
-  }, [navigate]);
+  const ownedStock = userStocks.reduce(
+    (total, stock) =>
+      stock.symbol === symbol && !stock.isSold ? total + stock.quantity : total,
+    0
+  );
+  const ownedStockWorth = ownedStock * (stockData?.price ?? 0);
 
   // Historical data fetch
   const fetchHistoricalData = useCallback(async () => {
@@ -424,7 +446,7 @@ const StockDetail = () => {
       );
       const data = await response.json();
 
-      const processedData = data.map(item => ({
+      const processedData = data.map((item) => ({
         date: new Date(item.date).toLocaleDateString(),
         close: item.close,
         volume: item.volume,
@@ -434,7 +456,7 @@ const StockDetail = () => {
 
       setHistoricalData(processedData);
     } catch (error) {
-      console.error('Error fetching historical data:', error);
+      console.error("Error fetching historical data:", error);
     } finally {
       setChartLoading(false);
     }
@@ -447,7 +469,7 @@ const StockDetail = () => {
       const data = await response.json();
       setOrderBook(data);
     } catch (error) {
-      console.error('Error fetching order book:', error);
+      console.error("Error fetching order book:", error);
     }
   }, [symbol]);
 
@@ -467,14 +489,11 @@ const StockDetail = () => {
         setUserStocks(dashboardData.stocks ?? []);
       }
 
-      await Promise.all([
-        fetchHistoricalData(),
-        fetchOrderBook()
-      ]);
+      await Promise.all([fetchHistoricalData(), fetchOrderBook()]);
 
       setLoading(false);
     } catch (err) {
-      setError(err?.message ?? 'An error occurred');
+      setError(err?.message ?? "An error occurred");
       setLoading(false);
     }
   }, [symbol, checkAuth, fetchDashboard, fetchHistoricalData, fetchOrderBook]);
@@ -488,50 +507,52 @@ const StockDetail = () => {
       setOrderStatus(null);
       const { token, userId } = auth;
 
-      if (tradeType === 'sell') {
-        const userStock = userStocks.find(stock =>
-          stock.symbol === symbol && !stock.isSold
+      if (tradeType === "sell") {
+        const userStock = userStocks.find(
+          (stock) => stock.symbol === symbol && !stock.isSold
         );
         if (!userStock || userStock.quantity < quantity) {
-          throw new Error('Insufficient stock quantity');
+          throw new Error("Insufficient stock quantity");
         }
-      } else if (tradeType === 'buy') {
+      } else if (tradeType === "buy") {
         const totalCost = (stockData?.price ?? 0) * quantity;
         if (totalCost > userBalance) {
-          throw new Error('Insufficient balance');
+          throw new Error("Insufficient balance");
         }
       }
 
       const response = await fetch(`${BASE_URL}/${tradeType}`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           userId,
           symbol,
           quantity,
-          price: stockData?.price ?? 0
-        })
+          price: stockData?.price ?? 0,
+        }),
       });
 
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result?.message ?? 'Trade failed');
+        throw new Error(result?.message ?? "Trade failed");
       }
 
       setOrderStatus({
-        type: 'success',
-        message: `Successfully ${tradeType === 'buy' ? 'bought' : 'sold'} ${quantity} shares of ${symbol}`
+        type: "success",
+        message: `Successfully ${
+          tradeType === "buy" ? "bought" : "sold"
+        } ${quantity} shares of ${symbol}`,
       });
 
       fetchData();
     } catch (err) {
       setOrderStatus({
-        type: 'error',
-        message: err?.message ?? 'Trade failed'
+        type: "error",
+        message: err?.message ?? "Trade failed",
       });
     }
   };
@@ -569,46 +590,51 @@ const StockDetail = () => {
   const isPositiveChange = (stockData?.change ?? 0) >= 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 text-white p-8 py-28">
-      <div className="max-w-6xl mx-auto space-y-8">
-        {/* Header */}
-        <div className="flex justify-between items-start">
-          <div>
-            <h1 className="text-3xl font-bold">{symbol}</h1>
-            <p className="text-gray-400">{stockData?.name ?? 'Loading...'}</p>
+    <div className="min-h-screen  bg-gradient-to-b from-black to-gray-900 text-white p-8 py-32">
+      {/* Header Section */}
+      <div className="flex justify-between items-start mb-8">
+        <div>
+          <h1 className="text-4xl font-bold">{symbol}</h1>
+          <p className="text-gray-400 text-lg">
+            {stockData?.name ?? "Loading..."}
+          </p>
+        </div>
+        <div className="text-right">
+          <div className="text-5xl font-mono font-bold">
+            ₹{stockData?.price?.toFixed(2) ?? "0.00"}
           </div>
-          <div className="text-right">
-            <div className="text-3xl font-mono font-bold">
-            ₹{stockData?.price?.toFixed(2) ?? '0.00'}
-            </div>
-            <div className={`flex items-center justify-end ${
-              isPositiveChange ? 'text-emerald-400' : 'text-rose-400'
-            }`}>
-              {isPositiveChange ? (
-                <TrendingUp className="w-5 h-5 mr-2" />
-              ) : (
-                <TrendingDown className="w-5 h-5 mr-2" />
-              )}
-              <span className="font-mono">
-                {Math.abs(stockData?.change ?? 0).toFixed(2)}%
-              </span>
-            </div>
+          <div
+            className={`flex text-lg items-center justify-end ${
+              isPositiveChange ? "text-emerald-400" : "text-rose-400"
+            }`}
+          >
+            {isPositiveChange ? (
+              <TrendingUp className="w-5 h-5 mr-2" />
+            ) : (
+              <TrendingDown className="w-5 h-5 mr-2" />
+            )}
+            <span className="font-mono">
+              {Math.abs(stockData?.change ?? 0).toFixed(2)}%
+            </span>
           </div>
         </div>
+      </div>
 
-        {/* Charts */}
-        <div className="bg-gray-900/50 rounded-xl p-6 border border-gray-800">
+      {/* Main Content Grid */}
+      <div className="grid grid-cols-4 gap-6">
+        {/* Charts Section (3/4 width) */}
+        <div className="col-span-3 bg-gray-900/50 rounded-xl p-6 border border-gray-800">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-xl font-bold">Price History</h2>
             <div className="flex gap-2">
-              {TIME_RANGES.map(range => (
+              {TIME_RANGES.map((range) => (
                 <button
                   key={range.value}
                   onClick={() => setSelectedTimeRange(range.value)}
                   className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
                     selectedTimeRange === range.value
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-800 text-gray-300'
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-800 text-gray-300"
                   }`}
                 >
                   {range.label}
@@ -623,20 +649,33 @@ const StockDetail = () => {
             </div>
           ) : (
             <>
-              {/* Price Chart */}
               <div className="h-96 mb-8">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={historicalData}>
                     <defs>
-                      <linearGradient id="colorPrice" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#10B981" stopOpacity={0.3}/>
-                        <stop offset="95%" stopColor="#10B981" stopOpacity={0}/>
+                      <linearGradient
+                        id="colorPrice"
+                        x1="0"
+                        y1="0"
+                        x2="0"
+                        y2="1"
+                      >
+                        <stop
+                          offset="5%"
+                          stopColor="#10B981"
+                          stopOpacity={0.3}
+                        />
+                        <stop
+                          offset="95%"
+                          stopColor="#10B981"
+                          stopOpacity={0}
+                        />
                       </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#374151"/>
-                    <XAxis dataKey="date" stroke="#9CA3AF"/>
-                    <YAxis stroke="#9CA3AF"/>
-                    <Tooltip content={<CustomTooltip />}/>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                    <XAxis dataKey="date" stroke="#9CA3AF" />
+                    <YAxis stroke="#9CA3AF" />
+                    <Tooltip content={<CustomTooltip />} />
                     <Area
                       type="monotone"
                       dataKey="close"
@@ -648,21 +687,14 @@ const StockDetail = () => {
                 </ResponsiveContainer>
               </div>
 
-              {/* Volume Chart */}
               <div className="h-48">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={historicalData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#374151"/>
-                    <XAxis dataKey="date" stroke="#9CA3AF"/>
-                    <YAxis stroke="#9CA3AF"/>
-                    <Tooltip
-                      contentStyle={{
-                        backgroundColor: '#1F2937',
-                        border: '1px solid #374151',
-                        borderRadius: '0.5rem',
-                      }}
-                    />
-                    <Bar dataKey="volume" fill="#60A5FA"/>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                    <XAxis dataKey="date" stroke="#9CA3AF" />
+                    <YAxis stroke="#9CA3AF" />
+                    <Tooltip />
+                    <Bar dataKey="volume" fill="#60A5FA" />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -670,16 +702,18 @@ const StockDetail = () => {
           )}
         </div>
 
-        {/* Trading Section */}
-        <div className="bg-gray-900/50 rounded-xl p-6 border border-gray-800">
+        {/* Trading Section (1/4 width) */}
+        <div className="col-span-1 bg-gray-900/50 rounded-xl p-6 border border-gray-800">
           <h2 className="text-xl font-bold mb-4">Place Order</h2>
 
           {orderStatus && (
-            <div className={`p-4 mb-4 rounded-lg ${
-              orderStatus.type === 'success'
-                ? 'bg-emerald-900/20 border border-emerald-800 text-emerald-400'
-                : 'bg-red-900/20 border border-red-800 text-red-400'
-            }`}>
+            <div
+              className={`p-4 mb-4 rounded-lg ${
+                orderStatus.type === "success"
+                  ? "bg-emerald-900/20 border border-emerald-800 text-emerald-400"
+                  : "bg-red-900/20 border border-red-800 text-red-400"
+              }`}
+            >
               {orderStatus.message}
             </div>
           )}
@@ -687,21 +721,21 @@ const StockDetail = () => {
           <div className="space-y-4">
             <div className="flex gap-2">
               <button
-                onClick={() => setTradeType('buy')}
+                onClick={() => setTradeType("buy")}
                 className={`flex-1 py-2 px-4 rounded-lg font-medium transition-colors ${
-                  tradeType === 'buy'
-                    ? 'bg-emerald-600 text-white'
-                    : 'bg-gray-800 text-gray-300'
+                  tradeType === "buy"
+                    ? "bg-emerald-600 text-white"
+                    : "bg-gray-800 text-gray-300"
                 }`}
               >
                 Buy
               </button>
               <button
-                onClick={() => setTradeType('sell')}
+                onClick={() => setTradeType("sell")}
                 className={`flex-1 py-2 px-4 rounded-lg font-medium transition-colors ${
-                  tradeType === 'sell'
-                    ? 'bg-rose-600 text-white'
-                    : 'bg-gray-800 text-gray-300'
+                  tradeType === "sell"
+                    ? "bg-rose-600 text-white"
+                    : "bg-gray-800 text-gray-300"
                 }`}
               >
                 Sell
@@ -716,161 +750,189 @@ const StockDetail = () => {
                 type="number"
                 min="1"
                 value={quantity}
-                onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
+                onChange={(e) =>
+                  setQuantity(Math.max(1, parseInt(e.target.value) || 1))
+                }
                 className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500"
               />
             </div>
 
             <div>
               <label className="block text-sm text-gray-400 mb-1">
-                Total {tradeType === 'buy' ? 'Cost' : 'Proceeds'}
+                Total {tradeType === "buy" ? "Cost" : "Proceeds"}
               </label>
               <div className="text-2xl font-mono font-bold">
-              ₹{totalCost.toFixed(2)}
+                ₹{totalCost.toFixed(2)}
               </div>
             </div>
 
-            <div className="text-sm text-gray-400">
-              Available Balance: ₹{userBalance.toFixed(2)}
-            </div>
+            {tradeType === "buy" ? (
+              <div className="text-sm text-gray-400">
+                Available Balance: ₹{userBalance.toFixed(2)}
+                <div className="text-sm">Owned Quantity: {ownedStock}</div>
+              </div>
+            ) : (
+              <div className="space-y-2 bg-gray-800/50 p-4 rounded-lg">
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-400">Owned Quantity:</span>
+                  <span className="font-mono text-white">{ownedStock}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-400">Current Worth:</span>
+                  <span className="font-mono text-white">
+                    ₹{ownedStockWorth.toFixed(2)}
+                  </span>
+                </div>
+                <div className=" flex justify-between text-sm text-gray-400">
+                  <span className="text-gray-400">Available Balance: </span>
+                  <span className="font-mono text-white">
+                    ₹{userBalance.toFixed(2)}
+                  </span>
+                </div>
+              </div>
+            )}
 
             <button
               onClick={handleTrade}
-              disabled={loading || (tradeType === 'buy' && totalCost > userBalance)}
-              className={`w-full py-3 px-4 rounded-lg font-medium transition-colors ${
-                tradeType === 'buy'
-                  ? 'bg-emerald-600 hover:bg-emerald-700'
-                  : 'bg-rose-600 hover:bg-rose-700'
+              disabled={
+                loading ||
+                (tradeType === "buy" && totalCost > userBalance) ||
+                (tradeType === "sell" && quantity > ownedStock)
+              }
+              className={`w-full mt-2 py-3 px-4 rounded-lg font-medium transition-colors ${
+                tradeType === "buy"
+                  ? "bg-emerald-600 hover:bg-emerald-700"
+                  : "bg-rose-600 hover:bg-rose-700"
               } text-white disabled:opacity-50 disabled:cursor-not-allowed`}
             >
-              {tradeType === 'buy' ? 'Buy' : 'Sell'} {symbol}
+              {tradeType === "buy" ? "Buy" : "Sell"} {symbol}
             </button>
           </div>
         </div>
+      </div>
 
-        {/* Market Info and Order Book */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Market Info */}
-          <div className="bg-gray-900/50 rounded-xl p-6 border border-gray-800">
-            <h2 className="text-xl font-bold mb-4">Market Info</h2>
-            <div className="space-y-2">
-              <div className="flex justify-between">
-                <span className="text-gray-400">Volume</span>
-                <span className="font-mono">
-                  {(stockData?.volume ?? 0).toLocaleString()}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">Market Cap</span>
-                <span className="font-mono">
+      {/* Market Info and Order Book */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {/* Market Info */}
+        <div className="bg-gray-900/50 rounded-xl p-6 border border-gray-800">
+          <h2 className="text-xl font-bold mb-4">Market Info</h2>
+          <div className="space-y-2">
+            <div className="flex justify-between">
+              <span className="text-gray-400">Volume</span>
+              <span className="font-mono">
+                {(stockData?.volume ?? 0).toLocaleString()}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-400">Market Cap</span>
+              <span className="font-mono">
                 ₹{((stockData?.marketCap ?? 0) / 1e9).toFixed(2)}B
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">Exchange</span>
-                <span className="font-mono">{stockData?.exchange ?? 'N/A'}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">Day High</span>
-                <span className="font-mono">
-                ₹{stockData?.dayHigh?.toFixed(2) ?? 'N/A'}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">Day Low</span>
-                <span className="font-mono">
-                ₹{stockData?.dayLow?.toFixed(2) ?? 'N/A'}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">Open</span>
-                <span className="font-mono">
-                ₹{stockData?.open?.toFixed(2) ?? 'N/A'}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">Previous Close</span>
-                <span className="font-mono">
-                ₹{stockData?.previousClose?.toFixed(2) ?? 'N/A'}
-                </span>
-              </div>
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-400">Exchange</span>
+              <span className="font-mono">{stockData?.exchange ?? "N/A"}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-400">Day High</span>
+              <span className="font-mono">
+                ₹{stockData?.dayHigh?.toFixed(2) ?? "N/A"}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-400">Day Low</span>
+              <span className="font-mono">
+                ₹{stockData?.dayLow?.toFixed(2) ?? "N/A"}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-400">Open</span>
+              <span className="font-mono">
+                ₹{stockData?.open?.toFixed(2) ?? "N/A"}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-400">Previous Close</span>
+              <span className="font-mono">
+                ₹{stockData?.previousClose?.toFixed(2) ?? "N/A"}
+              </span>
             </div>
           </div>
+        </div>
 
-          {/* Order Book */}
-          <div className="bg-gray-900/50 rounded-xl p-6 border border-gray-800">
-            <h2 className="text-xl font-bold mb-4">Order Book</h2>
-            {orderBook ? (
-              <div className="space-y-6">
-                <div className="grid grid-cols-2 gap-4">
-                  {/* Bid Side */}
-                  <div className="space-y-4">
-                    <div>
-                      <h3 className="text-sm text-gray-400 mb-2">Bid</h3>
-                      <div className="bg-gray-800/50 rounded-lg p-4">
-                        <div className="space-y-2">
-                          <div className="flex justify-between">
-                            <span className="text-gray-400">Price</span>
-                            <span className="font-mono text-emerald-400">
+        {/* Order Book */}
+        <div className="bg-gray-900/50 rounded-xl p-6 border border-gray-800">
+          <h2 className="text-xl font-bold mb-4">Order Book</h2>
+          {orderBook ? (
+            <div className="space-y-6">
+              <div className="grid grid-cols-2 gap-4">
+                {/* Bid Side */}
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="text-sm text-gray-400 mb-2">Bid</h3>
+                    <div className="bg-gray-800/50 rounded-lg p-4">
+                      <div className="space-y-2">
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">Price</span>
+                          <span className="font-mono text-emerald-400">
                             ₹{orderBook.bid.price?.toFixed(2)}
-                            </span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-gray-400">Size</span>
-                            <span className="font-mono">
-                              {orderBook.bid.size?.toLocaleString()}
-                            </span>
-                          </div>
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">Size</span>
+                          <span className="font-mono">
+                            {orderBook.bid.size?.toLocaleString()}
+                          </span>
                         </div>
                       </div>
                     </div>
                   </div>
+                </div>
 
-                  {/* Ask Side */}
-                  <div className="space-y-4">
-                    <div>
-                      <h3 className="text-sm text-gray-400 mb-2">Ask</h3>
-                      <div className="bg-gray-800/50 rounded-lg p-4">
-                        <div className="space-y-2">
-                          <div className="flex justify-between">
-                            <span className="text-gray-400">Price</span>
-                            <span className="font-mono text-rose-400">
+                {/* Ask Side */}
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="text-sm text-gray-400 mb-2">Ask</h3>
+                    <div className="bg-gray-800/50 rounded-lg p-4">
+                      <div className="space-y-2">
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">Price</span>
+                          <span className="font-mono text-rose-400">
                             ₹{orderBook.ask.price?.toFixed(2)}
-                            </span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-gray-400">Size</span>
-                            <span className="font-mono">
-                              {orderBook.ask.size?.toLocaleString()}
-                            </span>
-                          </div>
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">Size</span>
+                          <span className="font-mono">
+                            {orderBook.ask.size?.toLocaleString()}
+                          </span>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
+              </div>
 
-                <div className="border-t border-gray-800 pt-4">
-                  <div className="flex justify-between">
-                    <span className="text-gray-400">Last Price</span>
-                    <span className="font-mono">
+              <div className="border-t border-gray-800 pt-4">
+                <div className="flex justify-between">
+                  <span className="text-gray-400">Last Price</span>
+                  <span className="font-mono">
                     ₹{orderBook.lastPrice?.toFixed(2)}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-400">Last Size</span>
-                    <span className="font-mono">
-                      {orderBook.lastSize?.toLocaleString()}
-                    </span>
-                  </div>
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-400">Last Size</span>
+                  <span className="font-mono">
+                    {orderBook.lastSize?.toLocaleString()}
+                  </span>
                 </div>
               </div>
-            ) : (
-              <div className="text-gray-400 text-center py-4">
-                Loading order book data...
-              </div>
-            )}
-          </div>
+            </div>
+          ) : (
+            <div className="text-gray-400 text-center py-4">
+              Loading order book data...
+            </div>
+          )}
         </div>
       </div>
     </div>
