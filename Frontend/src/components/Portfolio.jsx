@@ -742,7 +742,7 @@
 //         const token = localStorage.getItem("token");
 
 //         const response = await fetch(
-//           `http://localhost:8000/api/portfolio/${userId}`,
+//           `https://virtual-ventures-2.onrender.com/api/portfolio/${userId}`,
 //           {
 //             headers: {
 //               Authorization: `Bearer ${token}`,
@@ -1395,7 +1395,7 @@ const Portfolio = () => {
         const token = localStorage.getItem("token");
 
         const response = await fetch(
-          `http://localhost:8000/api/portfolio/${userId}`,
+          `https://virtual-ventures-2.onrender.com/api/portfolio/${userId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

@@ -27,7 +27,7 @@ const Login = () => {
     setError("");
 
     try {
-      const response = await fetch("http://localhost:8000/api/login", {
+      const response = await fetch("https://virtual-ventures-2.onrender.com/api/login", {
         method: "POST",
         credentials: 'include', // Ensure cookies are included with the request
         headers: {
@@ -44,6 +44,7 @@ const Login = () => {
       }
 
       // Store user info in localStorage (No need to store token here since it's in the cookie)
+      console.log(data)
       localStorage.setItem("userId", data.user.id);
       localStorage.setItem("userName", data.user.name);
       localStorage.setItem('token',data.user.token);
@@ -65,7 +66,7 @@ const Login = () => {
   //   setError("");
 
   //   try {
-  //     const response = await fetch("http://localhost:8000/api/login", {
+  //     const response = await fetch("https://virtual-ventures-2.onrender.comres-2.onrender.com/api/login", {
   //       method: "POST",
   //       credentials: 'include', // Add this line to enable cookies
   //       headers: {

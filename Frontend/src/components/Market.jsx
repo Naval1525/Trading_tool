@@ -264,7 +264,7 @@
 // // //       );
 
 // // //       const response = await fetch(
-// // //         `http://localhost:8000/api/stocks?symbols=${modifiedSymbols.join(
+// // //         `https://virtual-ventures-2.onrender.com/api/stocks?symbols=${modifiedSymbols.join(
 // // //           ","
 // // //         )}${exchangeParam}`
 // // //       );
@@ -661,7 +661,7 @@
 // //       );
 
 // //       const response = await fetch(
-// //         `http://localhost:8000/api/stocks?symbols=${modifiedSymbols.join(
+// //         `https://virtual-ventures-2.onrender.com/api/stocks?symbols=${modifiedSymbols.join(
 // //           ","
 // //         )}${exchangeParam}`
 // //       );
@@ -1074,7 +1074,7 @@
 //       );
 
 //       const response = await fetch(
-//         `http://localhost:8000/api/stocks?symbols=${modifiedSymbols.join(
+//         `https://virtual-ventures-2.onrender.com/api/stocks?symbols=${modifiedSymbols.join(
 //           ","
 //         )}${exchangeParam}`
 //       );
@@ -1464,7 +1464,7 @@ const Market = () => {
       );
 
       const response = await fetch(
-        `http://localhost:8000/api/stocks?symbols=${modifiedSymbols.join(
+        `https://virtual-ventures-2.onrender.com/api/stocks?symbols=${modifiedSymbols.join(
           ","
         )}${exchangeParam}`
       );

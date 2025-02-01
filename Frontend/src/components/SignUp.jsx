@@ -67,7 +67,7 @@ const SignUp = ({ onRegisterSuccess }) => {
     setError("");
 
     try {
-      const response = await fetch("http://localhost:8000/api/register", {
+      const response = await fetch("https://virtual-ventures-2.onrender.com/api/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
