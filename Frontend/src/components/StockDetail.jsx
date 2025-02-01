@@ -1785,7 +1785,7 @@ const StockDetail = () => {
   const isPositiveChange = (stockData?.change ?? 0) >= 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black to-gray-900 text-white p-4 sm:p-6 md:py-28">
+    <div className="min-h-screen bg-gradient-to-br from-black to-gray-900 text-white p-4 sm:p-6 py-28  md:py-28">
       <div className="w-full mx-auto px-2 sm:px-4">
         {/* Stock Header */}
         <div className="mb-4 sm:mb-8 bg-gray-800/20 backdrop-blur p-4 sm:p-6 rounded-xl sm:rounded-2xl border border-gray-700/50">
@@ -1973,8 +1973,11 @@ const StockDetail = () => {
                 <label className="block text-xs sm:text-sm text-gray-400 mb-1">
                   Total {tradeType === "buy" ? "Cost" : "Proceeds"}
                 </label>
-                <div className="text-xl sm:text-2xl font-mono font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-300">
-                  ₹{totalCost.toFixed(2)}
+                <div className="flex space-x-2">
+                <div className="text-xl">💵</div>
+                  <div className="text-xl sm:text-2xl font-mono font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-300">
+                    {totalCost.toFixed(2)}
+                  </div>
                 </div>
               </div>
 
@@ -1992,7 +1995,7 @@ const StockDetail = () => {
                 <div className="flex justify-between text-xs sm:text-sm">
                   <span className="text-gray-400">Available Balance:</span>
                   <span className="font-mono text-white">
-                    ₹{userBalance.toFixed(2)}
+                    💵{userBalance.toFixed(2)}
                   </span>
                 </div>
               </div>
@@ -2036,7 +2039,7 @@ const StockDetail = () => {
               <div className="flex justify-between items-center">
                 <span className="text-gray-300">Market Cap</span>
                 <span className="font-mono text-white">
-                  ${((stockData?.marketCap ?? 0) / 1e9).toFixed(2)}B
+                ₹{((stockData?.marketCap ?? 0) / 1e9).toFixed(2)}B
                 </span>
               </div>
               <div className="flex justify-between items-center">
@@ -2048,25 +2051,25 @@ const StockDetail = () => {
               <div className="flex justify-between items-center">
                 <span className="text-gray-300">Day High</span>
                 <span className="font-mono text-white">
-                  ${stockData?.dayHigh?.toFixed(2) ?? "N/A"}
+                ₹{stockData?.dayHigh?.toFixed(2) ?? "N/A"}
                 </span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-gray-300">Day Low</span>
                 <span className="font-mono text-white">
-                  ${stockData?.dayLow?.toFixed(2) ?? "N/A"}
+                ₹{stockData?.dayLow?.toFixed(2) ?? "N/A"}
                 </span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-gray-300">Open</span>
                 <span className="font-mono text-white">
-                  ${stockData?.open?.toFixed(2) ?? "N/A"}
+                ₹{stockData?.open?.toFixed(2) ?? "N/A"}
                 </span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-gray-300">Previous Close</span>
                 <span className="font-mono text-white">
-                  ${stockData?.previousClose?.toFixed(2) ?? "N/A"}
+                ₹{stockData?.previousClose?.toFixed(2) ?? "N/A"}
                 </span>
               </div>
             </div>
@@ -2085,7 +2088,7 @@ const StockDetail = () => {
                       <div className="flex justify-between items-center">
                         <span className="text-gray-300">Price</span>
                         <span className="font-mono text-emerald-400">
-                          ${orderBook.bid.price?.toFixed(2) ?? "0.00"}
+                        ₹{orderBook.bid.price?.toFixed(2) ?? "0.00"}
                         </span>
                       </div>
                       <div className="flex justify-between items-center">
@@ -2104,7 +2107,7 @@ const StockDetail = () => {
                       <div className="flex justify-between items-center">
                         <span className="text-gray-300">Price</span>
                         <span className="font-mono text-rose-400">
-                          ${orderBook.ask.price?.toFixed(2) ?? "0.00"}
+                        ₹{orderBook.ask.price?.toFixed(2) ?? "0.00"}
                         </span>
                       </div>
                       <div className="flex justify-between items-center">
@@ -2123,7 +2126,7 @@ const StockDetail = () => {
                     <div className="flex justify-between items-center">
                       <span className="text-gray-300">Last Price</span>
                       <span className="font-mono text-white">
-                        ${orderBook.lastPrice?.toFixed(2) ?? "N/A"}
+                      ₹{orderBook.lastPrice?.toFixed(2) ?? "N/A"}
                       </span>
                     </div>
                     <div className="flex justify-between items-center">

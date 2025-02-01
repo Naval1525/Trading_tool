@@ -522,7 +522,7 @@ const News = () => {
             Global Market News
           </h1>
 
-          <div className="sticky top-0 space-y-4 bg-black/80 backdrop-blur-md p-6 rounded-2xl border border-gray-800/50">
+          <div className="sticky top-0 space-y-4 bg-gray-900/50 backdrop-blur-md p-6 rounded-2xl border border-gray-800/50">
             {/* Search Bar */}
             <div className="relative">
               <input

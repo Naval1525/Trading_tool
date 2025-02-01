@@ -2,7 +2,6 @@
 
 // // import mongoose from "mongoose";
 
-
 // // const activitySchema = new mongoose.Schema({
 // //   type: {
 // //     type: String,
@@ -173,61 +172,70 @@
 
 // const User = mongoose.model('User', userSchema);
 // export default User;
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
-const activitySchema = new mongoose.Schema({
-  type: {
-    type: String,
-    enum: ['BUY', 'SELL', 'DEPOSIT', 'WITHDRAWAL'],
-    required: true
+const activitySchema = new mongoose.Schema(
+  {
+    type: {
+      type: String,
+      enum: ["BUY", "SELL", "DEPOSIT", "WITHDRAWAL"],
+      required: true,
+    },
+    stock: {
+      symbol: String,
+      price: { type: Number, min: 0 },
+      quantity: { type: Number, min: 0 },
+    },
+    balanceChange: Number,
+    balanceAfter: Number,
+    description: String,
+    timestamp: { type: Date, default: Date.now },
   },
-  stock: {
-    symbol: String,
-    price: { type: Number, min: 0 },
-    quantity: { type: Number, min: 0 }
-  },
-  balanceChange: Number,
-  balanceAfter: Number,
-  description: String,
-  timestamp: { type: Date, default: Date.now }
-}, { _id: false });
+  { _id: false }
+);
 
-const stockSchema = new mongoose.Schema({
-  symbol: { type: String, required: true, trim: true },
-  buyPrice: { type: Number, required: true, min: 0 },
-  quantity: { type: Number, required: true, min: 0 },
-  lastUpdated: { type: Date, default: Date.now },
-  isSold: { type: Boolean, default: false }
-}, { _id: false });
+const stockSchema = new mongoose.Schema(
+  {
+    symbol: { type: String, required: true, trim: true },
+    buyPrice: { type: Number, required: true, min: 0 },
+    quantity: { type: Number, required: true, min: 0 },
+    lastUpdated: { type: Date, default: Date.now },
+    isSold: { type: Boolean, default: false },
+  },
+  { _id: false }
+);
 
-const userSchema = new mongoose.Schema({
-  name: { type: String, required: true, trim: true },
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-    trim: true,
-    lowercase: true,
-    match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, 'Invalid email']
+const userSchema = new mongoose.Schema(
+  {
+    name: { type: String, required: true, trim: true },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
+      lowercase: true,
+      match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, "Invalid email"],
+    },
+    password: { type: String, required: true, minlength: 6 },
+    phoneNumber: {
+      type: String,
+      required: true,
+      trim: true,
+      match: [/^\+?[\d\s-]+$/, "Invalid phone number"],
+    },
+    stocks: [stockSchema],
+    accountBalance: { type: Number, default: 10000, min: 0 },
+    activities: [activitySchema],
   },
-  password: { type: String, required: true, minlength: 6 },
-  phoneNumber: {
-    type: String,
-    required: true,
-    trim: true,
-    match: [/^\+?[\d\s-]+$/, 'Invalid phone number']
-  },
-  stocks: [stockSchema],
-  accountBalance: { type: Number, default: 10000, min: 0 },
-  activities: [activitySchema]
-}, {
-  timestamps: true,
-  versionKey: false
-});
+  {
+    timestamps: true,
+    versionKey: false,
+  }
+);
 
 userSchema.index({ email: 1 });
-userSchema.index({ 'stocks.symbol': 1 });
-userSchema.index({ 'activities.timestamp': -1 });
+userSchema.index({ "stocks.symbol": 1 });
+userSchema.index({ "activities.timestamp": -1 });
 
-const User = mongoose.model('User', userSchema);
+const User = mongoose.model("User", userSchema);
 export default User;

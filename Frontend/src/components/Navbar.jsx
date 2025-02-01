@@ -3,7 +3,6 @@
 // // // // // import { Link } from "react-router-dom";
 // // // // // import { assets } from "./../assets/assets";
 
-
 // // // // // const Navbar = () => {
 // // // // //   const [isLogoHovered, setIsLogoHovered] = useState(false);
 
@@ -1416,12 +1415,12 @@ const Navbar = () => {
   // Add effect to control body scroll when menu is open
   useEffect(() => {
     if (isMenuOpen) {
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     }
     return () => {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     };
   }, [isMenuOpen]);
 
@@ -1494,161 +1493,63 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="fixed top-0 left-0 w-full bg-black/10 backdrop-blur-sm shadow-md z-50">
-      <div className="flex justify-between items-center py-6 px-6 max-w-7xl mx-auto">
-        <Link to="/">
-          <div
-            className="flex items-center"
-            onMouseEnter={() => setIsLogoHovered(true)}
-            onMouseLeave={() => setIsLogoHovered(false)}
-          >
+    <>
+      <nav className="fixed top-0 left-0 w-full bg-black/10 backdrop-blur-sm shadow-md z-40">
+        <div className="flex justify-between items-center py-6 px-6 max-w-7xl mx-auto">
+          <Link to="/">
             <div
-              className={`
-                w-12 h-12 inline-block
-                transition-transform duration-500 ease-in-out
-                ${isLogoHovered ? "rotate-180" : "rotate-0"}
-              `}
+              className="flex items-center"
+              onMouseEnter={() => setIsLogoHovered(true)}
+              onMouseLeave={() => setIsLogoHovered(false)}
             >
-              <img
-                src={assets.Logo}
-                alt="Logo"
-                className="object-contain w-full h-full"
-              />
+              <div
+                className={`
+                  w-12 h-12 inline-block
+                  transition-transform duration-500 ease-in-out
+                  ${isLogoHovered ? "rotate-180" : "rotate-0"}
+                `}
+              >
+                <img
+                  src={assets.Logo}
+                  alt="Logo"
+                  className="object-contain w-full h-full"
+                />
+              </div>
+              <div
+                className={`
+                  text-white text-2xl font-normal whitespace-nowrap
+                  transition-all duration-500 ease-linear overflow-hidden
+                  hidden md:block
+                  ${
+                    isLogoHovered
+                      ? "max-w-full opacity-100 ml-2"
+                      : "max-w-0 opacity-0 ml-0"
+                  }
+                `}
+              >
+                | Virtual Ventures
+              </div>
             </div>
-            <div
-              className={`
-                text-white text-2xl font-normal whitespace-nowrap
-                transition-all duration-500 ease-linear overflow-hidden
-                hidden md:block
-                ${isLogoHovered ? "max-w-full opacity-100 ml-2" : "max-w-0 opacity-0 ml-0"}
-              `}
-            >
-              | Virtual Ventures
-            </div>
-          </div>
-        </Link>
-
-        {/* Desktop Navigation */}
-        <div className="hidden md:flex items-center space-x-11 text-white">
-          <Link
-            to="/market"
-            className="text-xl font-normal tracking-wide hover:text-gray-300 transition-colors"
-          >
-            Market
-          </Link>
-          <Link
-            to="/news"
-            className="text-xl font-normal tracking-wide hover:text-gray-300 transition-colors"
-          >
-            News
-          </Link>
-          <Link
-            to={isAuthenticated ? `/portfolio/${userId}` : "/signup"}
-            onClick={handlePortfolioClick}
-            className="text-xl font-normal tracking-wide hover:text-gray-300 transition-colors"
-          >
-            Portfolio
           </Link>
 
-          {isAuthenticated ? (
-            <button
-              onClick={handleLogout}
-              className="
-                flex items-center gap-2
-                bg-gradient-to-r from-red-600 to-red-700
-                text-white
-                py-2 px-4
-                rounded-full
-                shadow-md
-                hover:scale-105
-                transition-all
-                duration-300
-                group
-              "
-            >
-              <span className="text-sm font-medium">
-                {userName ? `Logout ${userName}` : "Logout"}
-              </span>
-              <LogOut
-                size={20}
-                className="group-hover:translate-x-1 transition-transform"
-              />
-            </button>
-          ) : (
-            <Link
-              to="/signup"
-              className="
-                flex items-center gap-2
-                bg-gradient-to-r from-blue-600 to-purple-600
-                text-white
-                py-2 px-4
-                rounded-full
-                shadow-md
-                hover:scale-105
-                transition-all
-                duration-300
-                group
-              "
-            >
-              <span className="text-sm font-medium">Sign Up</span>
-              <ArrowRight
-                size={20}
-                className="group-hover:translate-x-1 transition-transform"
-              />
-            </Link>
-          )}
-        </div>
-
-        {/* Mobile Menu Button */}
-        <button
-          onClick={toggleMenu}
-          className="md:hidden text-white p-2 focus:outline-none"
-        >
-          {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
-
-        {/* Mobile Navigation */}
-        <div
-          className={`
-          mt-44
-
-
-            fixed inset-0
-            flex flex-col items-center justify-center
-            transition-all duration-300 ease-in-out
-            md:hidden
-            ${isMenuOpen ? "visible bg-black/90 backdrop-blur-xl" : "invisible"}
-          `}
-        >
-          <button
-            onClick={toggleMenu}
-            className="absolute top-6 right-6 text-white p-2"
-          >
-            {/* <X size={24} /> */}
-          </button>
-
-          <div className="flex flex-col items-center space-y-8 text-white">
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center space-x-11 text-white">
             <Link
               to="/market"
-              className="text-2xl font-normal tracking-wide hover:text-gray-300 transition-colors"
-              onClick={closeMenu}
+              className="text-xl font-normal tracking-wide hover:text-gray-300 transition-colors"
             >
               Market
             </Link>
             <Link
               to="/news"
-              className="text-2xl font-normal tracking-wide hover:text-gray-300 transition-colors"
-              onClick={closeMenu}
+              className="text-xl font-normal tracking-wide hover:text-gray-300 transition-colors"
             >
               News
             </Link>
             <Link
               to={isAuthenticated ? `/portfolio/${userId}` : "/signup"}
-              onClick={(e) => {
-                handlePortfolioClick(e);
-                closeMenu();
-              }}
-              className="text-2xl font-normal tracking-wide hover:text-gray-300 transition-colors"
+              onClick={handlePortfolioClick}
+              className="text-xl font-normal tracking-wide hover:text-gray-300 transition-colors"
             >
               Portfolio
             </Link>
@@ -1660,7 +1561,7 @@ const Navbar = () => {
                   flex items-center gap-2
                   bg-gradient-to-r from-red-600 to-red-700
                   text-white
-                  py-3 px-6
+                  py-2 px-4
                   rounded-full
                   shadow-md
                   hover:scale-105
@@ -1669,23 +1570,22 @@ const Navbar = () => {
                   group
                 "
               >
-                <span className="text-lg font-medium">
+                <span className="text-sm font-medium">
                   {userName ? `Logout ${userName}` : "Logout"}
                 </span>
                 <LogOut
-                  size={24}
+                  size={20}
                   className="group-hover:translate-x-1 transition-transform"
                 />
               </button>
             ) : (
               <Link
                 to="/signup"
-                onClick={closeMenu}
                 className="
                   flex items-center gap-2
                   bg-gradient-to-r from-blue-600 to-purple-600
                   text-white
-                  py-3 px-6
+                  py-2 px-4
                   rounded-full
                   shadow-md
                   hover:scale-105
@@ -1694,17 +1594,128 @@ const Navbar = () => {
                   group
                 "
               >
-                <span className="text-lg font-medium">Sign Up</span>
+                <span className="text-sm font-medium">Sign Up</span>
                 <ArrowRight
-                  size={24}
+                  size={20}
                   className="group-hover:translate-x-1 transition-transform"
                 />
               </Link>
             )}
           </div>
+
+          {/* Mobile Menu Button */}
+          <button
+            onClick={toggleMenu}
+            className="md:hidden text-white p-2 focus:outline-none"
+          >
+            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        </div>
+      </nav>
+
+      {/* Mobile Navigation Overlay */}
+      <div
+        className={`
+          fixed inset-0
+          bg-black/95
+          backdrop-blur-md
+          flex flex-col items-center mt-24
+          transition-all duration-300 ease-in-out
+          md:hidden
+          z-50
+          ${
+            isMenuOpen
+              ? "opacity-90 pointer-events-auto"
+              : "opacity-0 pointer-events-none"
+          }
+        `}
+      >
+        <button
+          onClick={toggleMenu}
+          className="absolute top-6 right-6 text-white p-2"
+        >
+        </button>
+
+        <div className="flex flex-col items-center space-y-8 text-white">
+          <Link
+            to="/market"
+            className="text-2xl font-normal tracking-wide hover:text-gray-300 transition-colors"
+            onClick={closeMenu}
+          >
+            Market
+          </Link>
+          <Link
+            to="/news"
+            className="text-2xl font-normal tracking-wide hover:text-gray-300 transition-colors"
+            onClick={closeMenu}
+          >
+            News
+          </Link>
+          <Link
+            to={isAuthenticated ? `/portfolio/${userId}` : "/signup"}
+            onClick={(e) => {
+              handlePortfolioClick(e);
+              closeMenu();
+            }}
+            className="text-2xl font-normal tracking-wide hover:text-gray-300 transition-colors"
+          >
+            Portfolio
+          </Link>
+
+          {isAuthenticated ? (
+            <button
+              onClick={() => {
+                handleLogout();
+                closeMenu();
+              }}
+              className="
+                flex items-center gap-2
+                bg-gradient-to-r from-red-600 to-red-700
+                text-white
+                py-3 px-6
+                rounded-full
+                shadow-md
+                hover:scale-105
+                transition-all
+                duration-300
+                group
+              "
+            >
+              <span className="text-lg font-medium">
+                {userName ? `Logout ${userName}` : "Logout"}
+              </span>
+              <LogOut
+                size={24}
+                className="group-hover:translate-x-1 transition-transform"
+              />
+            </button>
+          ) : (
+            <Link
+              to="/signup"
+              onClick={closeMenu}
+              className="
+                flex items-center gap-2
+                bg-gradient-to-r from-blue-600 to-purple-600
+                text-white
+                py-3 px-6
+                rounded-full
+                shadow-md
+                hover:scale-105
+                transition-all
+                duration-300
+                group
+              "
+            >
+              <span className="text-lg font-medium">Sign Up</span>
+              <ArrowRight
+                size={24}
+                className="group-hover:translate-x-1 transition-transform"
+              />
+            </Link>
+          )}
         </div>
       </div>
-    </nav>
+    </>
   );
 };
 

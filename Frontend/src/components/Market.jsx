@@ -1546,12 +1546,12 @@ const Market = () => {
   return (
     <>
       <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 text-white py-24">
-        <div className="sticky top-0 bg-black/80 backdrop-blur-md border-b border-gray-800/50 px-4 py-4 z-50">
+        <div className="sticky top-0 bg-black/80 backdrop-blur-md border-b border-gray-800/50 px-4 py-4 ">
           <div className="max-w-6xl mx-auto flex gap-3">
             <div className="relative flex-1">
               <input
                 type="text"
-                placeholder="Search stocks by symbol (e.g., RELIANCE)"
+                placeholder="Search stocks"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSearch()}

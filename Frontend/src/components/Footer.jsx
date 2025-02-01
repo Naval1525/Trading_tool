@@ -109,7 +109,7 @@ const Footer = () => {
                     Frontend Developer
                   </p>
                   <a
-                    href="https://www.linkedin.com/in/aditya"
+                    href="https://www.linkedin.com/in/adityamaurya28/"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center space-x-1 text-xs text-gray-400 hover:text-blue-400 transition-colors"
@@ -133,7 +133,7 @@ const Footer = () => {
                   </p>
                   <p className="text-xs text-gray-400 mb-2">System Architect</p>
                   <a
-                    href="https://www.linkedin.com/in/naval"
+                    href="https://www.linkedin.com/in/navalbihani15/"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center space-x-1 text-xs text-gray-400 hover:text-blue-400 transition-colors"
