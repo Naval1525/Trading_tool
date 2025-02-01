@@ -2,6 +2,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import User from "../models/user.model.js";
 
+
 const cookieOptions = {
   httpOnly: true, // Ensures the cookie is only accessible through HTTP(S), not via client-side JavaScript
   secure: process.env.NODE_ENV === "production", // Ensures the cookie is only sent over HTTPS in production
