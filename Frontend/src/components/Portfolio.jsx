@@ -1733,7 +1733,7 @@ const Portfolio = () => {
               <div className="bg-gray-800 p-3 rounded">
                 <div className="text-gray-400 text-sm">Volatility</div>
                 <div className="text-lg font-bold">
-                  {dashboardData.riskAnalysis.volatility.toFixed(2)}%
+                  {dashboardData?.riskAnalysis?.volatility?.toFixed(2)}%
                 </div>
               </div>
               <div className="bg-gray-800 p-3 rounded">
@@ -1741,19 +1741,19 @@ const Portfolio = () => {
                   Diversification Score
                 </div>
                 <div className="text-lg font-bold">
-                  {dashboardData.riskAnalysis.diversificationScore.toFixed(2)}
+                  {dashboardData?.riskAnalysis?.diversificationScore?.toFixed(2)}
                 </div>
               </div>
               <div className="bg-gray-800 p-3 rounded">
                 <div className="text-gray-400 text-sm">Portfolio Beta</div>
                 <div className="text-lg font-bold">
-                  {dashboardData.riskAnalysis.portfolioBeta.toFixed(2)}
+                  {dashboardData?.riskAnalysis?.portfolioBeta?.toFixed(2)}
                 </div>
               </div>
               <div className="bg-gray-800 p-3 rounded">
                 <div className="text-gray-400 text-sm">Sharpe Ratio</div>
                 <div className="text-lg font-bold">
-                  {dashboardData.riskAnalysis.sharpeRatio.toFixed(2)}
+                  {dashboardData?.riskAnalysis?.sharpeRatio?.toFixed(2)}
                 </div>
               </div>
             </div>
@@ -1794,8 +1794,8 @@ const Portfolio = () => {
                   2
                 )}`,
                 "Best Performer": `${
-                  dashboardData.portfolioDetails.bestPerformer.symbol
-                } (${dashboardData.portfolioDetails.bestPerformer.unrealizedGainPercentage.toFixed(
+                  dashboardData?.portfolioDetails?.bestPerformer?.symbol
+                } (${dashboardData?.portfolioDetails?.bestPerformer?.unrealizedGainPercentage?.toFixed(
                   2
                 )}%)`,
               }).map(([key, value]) => (
