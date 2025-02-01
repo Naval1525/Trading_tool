@@ -368,6 +368,7 @@ export const buyStock = async (req, res) => {
       return res.status(400).json({ message: 'Invalid input parameters' });
     }
 
+    // const totalCost = quantity * price;
     const totalCost = quantity * price;
 
     // First, get the current user to calculate the new balance
