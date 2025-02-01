@@ -3,85 +3,124 @@ import {
   AlertTriangle,
   ChevronRight,
   TrendingUp,
+  GraduationCap,
   BookOpen,
+  Shield,
+  Info,
+  Wifi,
   Award,
 } from "lucide-react";
 import Particles from "../components/ui/particles";
+import { useNavigate } from "react-router-dom";
+
 const TradingDisclaimer = ({ onAccept }) => {
   const [isRead, setIsRead] = useState(false);
 
+  const Section = ({ icon: Icon, title, children, variant = 'default' }) => {
+    const variants = {
+      red: 'bg-red-900/20 border-red-800/50',
+      blue: 'bg-blue-900/20 border-blue-800/50',
+      yellow: 'bg-yellow-900/20 border-yellow-800/50',
+      default: 'bg-gray-800/50'
+    };
+
+    return (
+      <div className={`rounded-lg p-3 ${variant !== 'default' ? `border ${variants[variant]}` : variants.default}`}>
+        <div className="flex items-center gap-2 mb-2">
+          <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-gray-300 flex-shrink-0" />
+          <h2 className="text-sm sm:text-base font-semibold text-white">{title}</h2>
+        </div>
+        {children}
+      </div>
+    );
+  };
+
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-80 backdrop-blur-sm p-6 z-50">
-      <div className="max-w-4xl bg-black bg-opacity-90 rounded-lg border border-gray-800 p-8 space-y-6">
-        <div className="flex items-center gap-2 text-red-400">
-          <AlertTriangle className="w-6 h-6" />
-          <h2 className="text-2xl font-bold text-white">
-            Important Risk Disclosure
-          </h2>
+    <div className="fixed inset-0 flex items-start sm:items-center justify-center bg-black/90 backdrop-blur-sm p-2 z-50 overflow-y-auto">
+      <div className="w-full max-w-2xl bg-gray-900 rounded-xl border border-gray-800 p-3 sm:p-4 my-2 sm:my-4 space-y-3 sm:space-y-4">
+        <div className="flex items-center gap-2 border-b border-gray-800 pb-3">
+          <AlertTriangle className="w-5 h-5 sm:w-6 sm:h-6 text-red-500 flex-shrink-0" />
+          <div>
+            <h1 className="text-lg sm:text-xl font-bold text-white">Educational Platform Disclaimer</h1>
+            <p className="text-xs text-gray-400">Please read carefully</p>
+          </div>
         </div>
 
-        <div className="space-y-4 text-gray-100">
-          <div className="text-xl font-semibold text-white">
-            This platform is for EDUCATIONAL PURPOSES ONLY
-          </div>
-
-          <p>
-            The virtual trading platform provided here is designed solely for
-            educational and practice purposes using virtual/dummy coins.
+        <Section icon={BookOpen} title="Platform Overview" variant="blue">
+          <p className="text-xs sm:text-sm text-gray-300">
+            This is an educational trading platform using virtual currency for learning purposes only.
+            No real money is involved, and all activities are simulated to provide risk-free learning.
           </p>
+        </Section>
 
-          <div className="space-y-2">
-            <p className="font-semibold">Please understand that:</p>
-            <ul className="list-disc pl-6 space-y-2">
-              <li>
-                Success in virtual trading does not guarantee success in real
-                trading
-              </li>
-              <li>
-                Virtual trading cannot fully simulate real market emotions and
-                pressures
-              </li>
-              <li>Past performance is not indicative of future results</li>
-              <li>
-                Real cryptocurrency trading involves substantial risk of loss
-              </li>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <Section icon={GraduationCap} title="Features">
+            <ul className="text-xs text-gray-300 space-y-1">
+              <li>• Virtual trading simulations</li>
+              <li>• Market concept education</li>
+              <li>• Risk management learning</li>
+              <li>• Practice environment</li>
             </ul>
-          </div>
+          </Section>
 
-          <div className="bg-gray-900 bg-opacity-50 p-4 rounded-lg">
-            <p className="font-semibold">Regulatory Notice:</p>
-            <p>
-              This platform is not regulated by SEBI or any other Indian
-              regulatory authority.
-            </p>
-          </div>
+          <Section icon={Info} title="Important Notices">
+            <ul className="text-xs text-gray-300 space-y-1">
+              <li>• No real money involved</li>
+              <li>• Not a real trading platform</li>
+              <li>• No investment advice</li>
+              <li>• Educational purposes only</li>
+            </ul>
+          </Section>
         </div>
 
-        <div className="flex flex-col items-center gap-4 pt-4">
-          <label className="flex items-center gap-2 cursor-pointer">
+        <Section icon={Wifi} title="Data Usage" variant="yellow">
+          <p className="text-xs text-gray-300">
+            Uses Yahoo Finance API data for educational purposes. Data may be delayed or inaccurate.
+          </p>
+        </Section>
+
+        <Section icon={Shield} title="Risk Warning" variant="red">
+          <ul className="text-xs text-gray-300 space-y-1">
+            <li>• Virtual success ≠ real trading success</li>
+            <li>• Cannot simulate real market emotions</li>
+            <li>• Past performance not indicative</li>
+            <li>• Real trading involves substantial risk</li>
+            <li>• Not regulated by SEBI</li>
+          </ul>
+        </Section>
+
+        <div className="border-t border-gray-800 pt-3 sm:pt-4 space-y-3">
+          <label className="flex items-start gap-2 cursor-pointer group">
             <input
               type="checkbox"
               checked={isRead}
               onChange={() => setIsRead(!isRead)}
-              className="w-4 h-4"
+              className="mt-1 w-4 h-4 rounded border-gray-600 bg-gray-800 text-blue-500 flex-shrink-0"
             />
-            <span className="text-white">
-              I have read and understand the disclaimer
+            <span className="text-xs text-gray-300 group-hover:text-white">
+              I understand this is an educational platform only, using virtual currency for learning purposes,
+              with no real trading involved.
             </span>
           </label>
 
           <button
             onClick={onAccept}
             disabled={!isRead}
-            className="w-full max-w-md bg-blue-600 hover:bg-blue-700 disabled:bg-gray-700 text-white rounded-md px-4 py-2"
+            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-700 disabled:cursor-not-allowed
+              text-white rounded-lg px-4 py-2 text-sm font-medium transition-colors"
           >
-            Continue
+            Accept and Continue
           </button>
+
+          <p className="text-center text-xs text-gray-500">
+            By continuing, you acknowledge this is strictly educational and not a real trading platform
+          </p>
         </div>
       </div>
     </div>
   );
 };
+
 
 const BitcoinTradingGraph = () => {
   const [candles, setCandles] = useState([]);
@@ -164,6 +203,7 @@ const BitcoinTradingGraph = () => {
 
 const Hero = () => {
   const [showDisclaimer, setShowDisclaimer] = useState(true);
+  const nav = useNavigate();
 
   return (
     <>
@@ -200,10 +240,10 @@ const Hero = () => {
           </div>
 
           <div className="flex justify-center space-x-6">
-            <button className="flex items-center space-x-3 px-8 py-4 text-lg rounded-xl font-bold bg-white text-black hover:bg-gray-200 transition-all">
-              Start Learning <ChevronRight className="ml-2 w-6 h-6" />
+            <button className="flex items-center space-x-3 px-8 py-4 text-lg rounded-xl font-bold bg-white text-black hover:bg-gray-200 transition-all" onClick={()=>nav('/login')}>
+              Start Now <ChevronRight className="ml-2 w-6 h-6" />
             </button>
-            <button className="flex items-center space-x-3 px-8 py-4 text-lg rounded-xl font-bold border-2 border-white text-white hover:bg-white/10 transition-all duration-300">
+            <button className="flex items-center space-x-3 px-8 py-4 text-lg rounded-xl font-bold border-2 border-white text-white hover:bg-white/10 transition-all duration-300" onClick={()=>nav('/market')}>
               <TrendingUp className="mr-2 w-6 h-6" /> Practice Dashboard
             </button>
           </div>

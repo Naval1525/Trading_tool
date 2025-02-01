@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 const StockCard = ({ stock }) => {
   const navigate = useNavigate();
   return (
-  <div className="bg-gradient-to-br from-gray-900 to-gray-950 rounded-xl p-4 hover:shadow-lg hover:shadow-blue-900/20 transition-all border border-gray-800 hover:border-blue-500/30" onClick={() => navigate(`/stock/${stock.symbol}`)}>
+  <div className="cursor-pointer bg-gradient-to-br from-gray-900 to-gray-950 rounded-xl p-4 hover:shadow-lg hover:shadow-blue-900/20 transition-all border border-gray-800 hover:border-blue-500/30" onClick={() => navigate(`/stock/${stock.symbol}`)}>
     <div className="flex justify-between items-start mb-2">
       <div className="space-y-1">
         <span className="font-mono text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-blue-500">

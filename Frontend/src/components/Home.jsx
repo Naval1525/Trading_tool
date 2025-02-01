@@ -1,3 +1,4 @@
+import Footer from "./Footer";
 import Hero from "./Hero";
 import SubscriptionSection from "./SubscriptionSection";
 
@@ -6,6 +7,7 @@ function Home() {
     <div>
       <Hero></Hero>
       <SubscriptionSection></SubscriptionSection>
+      <Footer></Footer>
     </div>
   );
 }
